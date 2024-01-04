@@ -1,5 +1,7 @@
 import { TreeSelectOption } from './index';
-declare const _default: ({ option, onDelete, onInit }: {
+import { ChipProps } from '@mui/material';
+declare const _default: ({ size, option, onDelete, onInit }: {
+    size: ChipProps["size"];
     option: TreeSelectOption;
     onDelete: (id: string | number) => void;
     onInit: (number: any) => void;

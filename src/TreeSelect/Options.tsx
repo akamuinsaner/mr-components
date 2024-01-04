@@ -6,6 +6,7 @@ import Check from './Check';
 import ExpandIcon from './ExpandIcon';
 
 type Props = {
+    dense: boolean;
     expandKeys: Array<TreeSelectOption["id"]>;
     expandAll: boolean;
     showCheck: boolean;
@@ -21,6 +22,7 @@ type Props = {
 }
 
 export default ({
+    dense,
     expandKeys,
     expandAll,
     showCheck,
@@ -92,7 +94,7 @@ export default ({
                     paddingLeft: `${depth * 20 + 16}px`,
                     cursor: 'pointer'
                 }}
-                dense
+                dense={dense}
                 selected={itemSelected}
                 onClick={(e) => {
                     multiple && e.stopPropagation();

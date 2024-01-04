@@ -1,68 +1,58 @@
 import React from 'react';
-import { TextFieldProps } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { flatOptions, idAllChildrenMap } from './helper';
 import Autocomplete from '@mui/material/Autocomplete';
-import { PopperPlacementType } from '@mui/material/Popper';
+import { TextFieldProps } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Chip from '@mui/material/Chip';
-import Tag from './Tag';
+import Tag from '../TreeSelect/Tag';
+import { TreeSelectOption } from '../TreeSelect';
+import { flatOptions, idAllChildrenMap } from '../TreeSelect/helper';
 import DropDown from './DropDown';
 import Options from './Options';
 
-export type TreeSelectOption = {
-    id: number | string;
-    name: string | React.ReactNode;
-    parentId?: number | string;
-    children?: TreeSelectOption[];
-}
+export type CascaderOption = TreeSelectOption;
 
-export type TreeSelectProp = TextFieldProps & {
-    options: TreeSelectOption[];
+export type CascaderProps = {
+    options: CascaderOption[];
     multiple?: boolean;
-    placement?: PopperPlacementType;
     checkable?: boolean;
-    expandAll?: boolean;
-    expandKeys?: Array<number | string>;
     popperStyle?: React.CSSProperties;
     popperClassName?: string;
     search?: boolean;
     value?: any;
     onChange?: (v: any) => void;
-    loadData?: (o: TreeSelectOption) => Promise<TreeSelectOption[]>;
+    loadData?: (o: CascaderOption) => Promise<CascaderOption[]>;
     allowClear?: boolean;
     maxTagCount?: number | 'responsive';
 }
 
-const TreeSelect = ({
+const Cascader = ({
     search = false,
     options,
     multiple = false,
-    placement = "bottom-start",
     checkable = false,
-    expandAll = false,
     popperStyle = {},
     popperClassName,
     value,
-    expandKeys,
     onChange,
     loadData,
     allowClear = false,
     maxTagCount = 0,
     ...inputProps
-}: TreeSelectProp) => {
+}: TextFieldProps & CascaderProps) => {
     const inputRef = React.useRef(null);
     const eleRef = React.useRef<HTMLElement>(null);
     const [tagWidths, setTagWidths] = React.useState([]);
     const [initialized, setInitialized] = React.useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
     const [hovering, setHovering] = React.useState<boolean>(false);
-    const [selected, setSelected] = React.useState<Array<string | number>>([]);
+    const [selected, setSelected] = React.useState<CascaderOption["id"][]>([]);
     const [tagLimit, setTagLimit] = React.useState<number>(10000);
-    const [flattedOptions, setFlattedOptions] = React.useState<TreeSelectOption[]>(flatOptions(options));
-    const [allChildrenMap, setAllChildrenMap] = React.useState<Map<number | string, TreeSelectOption[]>>(new Map())
     const [inputValue, setInputValue] = React.useState<string>('');
+    const [flattedOptions, setFlattedOptions] = React.useState<CascaderOption[]>(flatOptions(options));
+    const [allChildrenMap, setAllChildrenMap] = React.useState<Map<CascaderOption["id"], CascaderOption[]>>(new Map())
+    const [openKeys, setOpenKeys] = React.useState<CascaderOption["id"][]>([""]);
     React.useEffect(() => {
         setAllChildrenMap(idAllChildrenMap(options))
     }, [flattedOptions]);
@@ -91,12 +81,6 @@ const TreeSelect = ({
             window.removeEventListener('resize', calculateTagLimit);
         }
     }, [maxTagCount, tagWidths, selected]);
-
-    React.useEffect(() => {
-        if (Array.isArray(value)) setSelected(value);
-        else setSelected(value ? [value] : []);
-    }, [value, multiple]);
-
     const onClear = () => setSelected([]);
     const openDropDown = (e) => {
         e.stopPropagation();
@@ -113,15 +97,29 @@ const TreeSelect = ({
         if (initialized) onChange && onChange(multiple ? selected : selected[0]);
         else setInitialized(true)
     }, [selected]);
-
-
-
     React.useEffect(() => {
         if (anchorEl) setTimeout(() => {
             document.addEventListener('click', closeOptions)
         }, 300);
     }, [anchorEl])
-
+    const renderInput = (params) => {
+        const isFocus = !!anchorEl;
+        return (
+            <TextField
+                {...params}
+                {...inputProps}
+                ref={inputRef}
+                onClick={e => e.stopPropagation()}
+                focused={isFocus}
+                placeholder={(isFocus && !multiple) ? renderValue() : inputProps.placeholder}
+                sx={{
+                    '& .MuiAutocomplete-inputRoot': {
+                        flexWrap: maxTagCount === 'responsive' ? 'nowrap' : 'wrap'
+                    }
+                }}
+            />
+        )
+    };
 
     const renderTags = (value: readonly any[], getTagProps) => {
         const rendered = value.slice(0, tagLimit);
@@ -147,36 +145,7 @@ const TreeSelect = ({
             : [])
     };
 
-
-    const renderValue = () => {
-        if (multiple) return selected
-        const isFocused = !!anchorEl;
-        if (isFocused && search) {
-            return inputValue;
-        }
-        const o = flattedOptions.find(o => o.id === selected[0]);
-        return o?.name || '';
-    };
-
-    const renderInput = (params) => {
-        const isFocus = !!anchorEl;
-        return (
-            <TextField
-                {...params}
-                {...inputProps}
-                ref={inputRef}
-                onClick={e => e.stopPropagation()}
-                focused={isFocus}
-                placeholder={(isFocus && !multiple) ? renderValue() : inputProps.placeholder}
-                sx={{
-                    '& .MuiAutocomplete-inputRoot': {
-                        flexWrap: maxTagCount === 'responsive' ? 'nowrap' : 'wrap'
-                    }
-                }}
-            />
-        )
-    };
-
+    
     const renderPopupIcon = () => {
         if (hovering && selected.length && allowClear) {
             return <CancelIcon onClick={onClear} />;
@@ -189,6 +158,54 @@ const TreeSelect = ({
         if (reason === 'reset' && multiple) return;
         setInputValue(value);
     };
+
+    const renderValue = () => {
+        if (multiple) return selected
+        const isFocused = !!anchorEl;
+        if (isFocused && search) {
+            return inputValue;
+        }
+        const o = flattedOptions.find(o => o.id === selected[0]);
+        return o?.name || '';
+    };
+
+    const renderDropDowns = () => {
+        return openKeys.map((key, depth) => {
+            const showCheck = checkable && multiple;
+            const dense = inputProps.size === 'small';
+            const openChildren = id => {
+                const a = [...openKeys];
+                a[depth + 1] = id;
+                setOpenKeys(a);
+            }
+            return (
+                <DropDown
+                    key={key}
+                    depth={depth}
+                    anchorEl={anchorEl}
+                    popperStyle={popperStyle}
+                    popperClassName={popperClassName}
+                >
+                    <Options
+                        dense={dense}
+                        parentId={key}
+                        showCheck={showCheck}
+                        search={search}
+                        multiple={multiple}
+                        selected={selected}
+                        inputValue={inputValue}
+                        flatOptions={flattedOptions}
+                        setSelected={setSelected}
+                        allChildrenMap={allChildrenMap}
+                        setFlattedOptions={setFlattedOptions}
+                        loadData={loadData}
+                        openChildren={openChildren}
+                    />
+                </DropDown>
+            )
+        })
+    }
+
     return (
         <>
             <Autocomplete
@@ -209,31 +226,10 @@ const TreeSelect = ({
                 renderInput={renderInput}
                 renderTags={renderTags}
             />
-            <DropDown
-                anchorEl={anchorEl}
-                placement={placement}
-                popperStyle={popperStyle}
-                popperClassName={popperClassName}
-                initialWidth={eleRef?.current?.offsetWidth}
-            >
-                <Options
-                    dense={inputProps.size === 'small'}
-                    expandAll={expandAll}
-                    showCheck={multiple && checkable}
-                    search={search}
-                    multiple={multiple}
-                    selected={selected}
-                    inputValue={inputValue}
-                    flatOptions={flattedOptions}
-                    setSelected={setSelected}
-                    allChildrenMap={allChildrenMap}
-                    setFlattedOptions={setFlattedOptions}
-                    loadData={loadData}
-                    expandKeys={expandKeys}
-                />
-            </DropDown>
+            {renderDropDowns()}
         </>
+
     )
 }
 
-export default TreeSelect;
+export default Cascader;

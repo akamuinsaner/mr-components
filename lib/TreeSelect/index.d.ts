@@ -24,4 +24,4 @@ export type TreeSelectProp = TextFieldProps & {
     maxTagCount?: number | 'responsive';
 };
 declare const TreeSelect: ({ search, options, multiple, placement, checkable, expandAll, popperStyle, popperClassName, value, expandKeys, onChange, loadData, allowClear, maxTagCount, ...inputProps }: TreeSelectProp) => import("react/jsx-runtime").JSX.Element;
-export { TreeSelect };
+export default TreeSelect;
