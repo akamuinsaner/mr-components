@@ -22,11 +22,13 @@ const Submit: SubmitItemComponent<SubmitItemProps> = ({
         size,
         disabled,
         layout,
-        gridProps: { itemProps }
+        gridProps: { itemProps },
+        fullWidth,
     } = context
     const preChildren = React.cloneElement(children, {
         size,
         disabled,
+        fullWidth,
         type: 'submit',
         ...children.props,
         onClick: () => {

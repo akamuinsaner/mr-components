@@ -6,12 +6,14 @@ import Submit, { SubmitItemComponent, SubmitItemProps } from './Submit';
 import { useForm, FormInstanceType } from './useForm';
 
 type FormProps = {
+    fullWidth?: boolean;
     size?: 'small' | 'medium';
     disabled?: boolean;
     initialValues?: { [name: string]: any };
     children: JSX.Element | JSX.Element[];
     onValuesChange?: (prev: any, cur: any) => void;
     onSubmit?: (values: any) => void;
+    onSubmitFail?: (errors: any) => void;
     form?: FormInstanceType;
     layout?: 'Stack' | 'Grid';
     stackProps?: StackProps;
@@ -31,13 +33,15 @@ type FormComponent<T> = React.FunctionComponent<T> & {
 export const FormContext = React.createContext(null);
 
 const Form: FormComponent<FormProps> = ({
+    fullWidth = true,
     size = 'medium',
     disabled = false,
     form,
     children,
     initialValues = {},
-    onValuesChange = () => { },
+    onValuesChange = () => {},
     onSubmit,
+    onSubmitFail,
     layout,
     stackProps = {},
     gridProps = {},
@@ -54,9 +58,8 @@ const Form: FormComponent<FormProps> = ({
     const submitForm = (e) => {
         e.preventDefault();
         instance.validates((errors, values) => {
-            if (!errors) {
-                onSubmit && onSubmit(values);
-            }
+            if (errors && onSubmitFail) onSubmitFail(errors)
+            if (!errors && onSubmit) onSubmit(values);
         })
     }
 
@@ -81,8 +84,9 @@ const Form: FormComponent<FormProps> = ({
             instance,
             size,
             layout,
-            gridProps ,
-            disabled
+            gridProps,
+            disabled,
+            fullWidth
         }}>
             <form
                 noValidate={true}

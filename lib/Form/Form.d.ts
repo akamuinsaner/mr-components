@@ -5,6 +5,7 @@ import { FormItemProps } from './Item';
 import { SubmitItemComponent, SubmitItemProps } from './Submit';
 import { FormInstanceType } from './useForm';
 type FormProps = {
+    fullWidth?: boolean;
     size?: 'small' | 'medium';
     disabled?: boolean;
     initialValues?: {
@@ -13,6 +14,7 @@ type FormProps = {
     children: JSX.Element | JSX.Element[];
     onValuesChange?: (prev: any, cur: any) => void;
     onSubmit?: (values: any) => void;
+    onSubmitFail?: (errors: any) => void;
     form?: FormInstanceType;
     layout?: 'Stack' | 'Grid';
     stackProps?: StackProps;

@@ -22,6 +22,7 @@ export type FormItemProps = {
     gridProps?: GridProps | null;
 };
 export type FormItemInstanceType = {
+    element?: HTMLElement;
     onChange?(v: any): void;
     getValue?: () => any;
     setValue?: (v: any) => void;

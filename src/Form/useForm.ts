@@ -9,13 +9,19 @@ export interface FormInstanceType {
     getFieldValue: (name: string) => void;
     setFieldValue: (name: string, value: any) => void;
     setFieldsValue: (values: { [name: string]: any }) => void;
+    resetFields: () => void;
+    scrollToField: (name: string) => void;
     validates: (callback: (errors: any, value: any) => void, names?: string[]) => void;
 }
 
 class FormInstance implements FormInstanceType {
+    private initialized: boolean;
+    private initialValues: { [name: string]: any };
     private store: { [name: string]: any };
     private wired: { [name: string]: React.MutableRefObject<FormItemInstanceType> };
     constructor() {
+        this.initialized = false;
+        this.initialValues = {};
         this.store = {};
         this.wired = {};
     }
@@ -58,10 +64,29 @@ class FormInstance implements FormInstanceType {
     setFieldsValue = (values) => {
         const oldStore = { ...this.store };
         this.store = { ...this.store, ...values };
+        if (!this.initialized) {
+            this.initialValues = this.store;
+            this.initialized = true;
+        }
         Object.entries(values).forEach(([name, value]) => {
             this.wired[name].current.setValue(value);
         })
         this.onValuesChange(oldStore, this.store);
+    }
+
+    resetFields = () => {
+        const oldStore = { ...this.store };
+        this.store = { ...this.initialValues };
+        Object.entries(this.wired).forEach(([name, _this]) => {
+            _this.current.setValue(this.store[name]);
+        })
+        this.onValuesChange(oldStore, this.store);
+    }
+
+    scrollToField = (name) => {
+        const _this = this.wired[name];
+        if (!_this) return;
+        _this.current.element.scrollIntoView();
     }
 
     validates = (cb, names) => {

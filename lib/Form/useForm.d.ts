@@ -10,6 +10,8 @@ export interface FormInstanceType {
     setFieldsValue: (values: {
         [name: string]: any;
     }) => void;
+    resetFields: () => void;
+    scrollToField: (name: string) => void;
     validates: (callback: (errors: any, value: any) => void, names?: string[]) => void;
 }
 declare const useForm: (form?: FormInstanceType) => FormInstanceType;
