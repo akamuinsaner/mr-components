@@ -1,9 +1,9 @@
 import React from 'react';
 import { ruleCheck } from './helpers';
-import Form from './Form';
+import { FormContext } from './Form';
 import { TextFieldProps } from '@mui/material';
 import Grid, { GridProps } from '@mui/material/Grid';
-import { v4 as uuidV4 } from 'uuid';
+import { FormInstanceType } from './useForm';
 
 export type RuleConfig = {
     required?: boolean;
@@ -19,12 +19,13 @@ export type FormItemProps = {
     name: string;
     children: JSX.Element | { (props: Partial<TextFieldProps & { onChange: (value: any) => void }>): JSX.Element };
     rules?: RuleConfig[];
+    checkable?: boolean;
     multiple?: boolean;
     gridProps?: GridProps | null;
 }
 
-export type FormItemExtraProps = {
-    emitValue?(v: any): void;
+export type FormItemInstanceType = {
+    onChange?(v: any): void;
     getValue?: () => any;
     setValue?: (v: any) => void;
     setError?: (error: string) => void;
@@ -33,27 +34,50 @@ export type FormItemExtraProps = {
 
 type FormItemComponent<T> = React.FunctionComponent<T>
 
-const valueHelper = (e) => {
+const valueHelper = (e, checkable) => {
+    if (checkable) return e.target.checked;
     if (e?.target && e?.target?.value !== null) return e.target.value;
     return e;
 }
 
+
+
 const FormItem: FormItemComponent<FormItemProps> = ({
     name,
+    checkable = false,
     multiple,
     children,
     rules = [],
     gridProps
 }) => {
-    const _this = React.useRef<FormItemExtraProps>({});
-    const [value, setValue] = React.useState<any>((multiple ? [] : ''));
+    const context = React.useContext<any>(FormContext);
+    const {
+        instance,
+        size,
+        disabled,
+        layout,
+        gridProps: { itemProps }
+    } = context
+
+    const getSafeValue = (value?: any) => {
+        if (value) return value;
+        if (multiple) return [];
+        if (checkable) return false;
+        return '';
+    }
+
+    const _this = React.useRef<FormItemInstanceType>({});
+    const [value, setValue] = React.useState<any>(getSafeValue());
     const [error, setError] = React.useState<string>(null);
+
+
+
     const _setError = React.useCallback((error) => {
         setError(error);
     }, []);
 
     const _setValue = React.useCallback((v) => {
-        const value = (!v && multiple) ? [] : v
+        const value = getSafeValue(v)
         setValue(value)
     }, []);
 
@@ -77,11 +101,15 @@ const FormItem: FormItemComponent<FormItemProps> = ({
     }
 
     React.useEffect(() => {
-        Form.register(name, _this);
+        instance.wire(name, _this);
         return () => {
-            Form.unRegister(name);
+            instance.unWire(name);
         }
     }, []);
+
+    React.useEffect(() => {
+        _setValue(instance.getFieldValue(name));
+    }, [])
 
 
     const errorCheck = React.useCallback((value) => {
@@ -90,12 +118,10 @@ const FormItem: FormItemComponent<FormItemProps> = ({
     }, [name]);
 
     const valueOnChange = React.useCallback((e: any) => {
-        const value = valueHelper(e);
+        const value = valueHelper(e, checkable);
         setError(errorCheck(value));
         setValue(value);
-        if (_this.current?.emitValue) {
-            _this.current?.emitValue(value);
-        }
+        instance.setFieldValue(name, value);
     }, []);
 
     const required = !!rules.find(item => item.required);
@@ -106,6 +132,8 @@ const FormItem: FormItemComponent<FormItemProps> = ({
         error: !!error,
         helperText: error,
         required,
+        size,
+        disabled,
     }
 
     let subComponent: JSX.Element;
@@ -114,21 +142,19 @@ const FormItem: FormItemComponent<FormItemProps> = ({
     } else {
         subComponent = children;
     }
-    if (gridProps) {
-        return <Grid {...gridProps} item>
-            {React.cloneElement(subComponent, {
-                ...subComponent.props,
-                ...props,
-                fullWidth: true
-            })}
-        </Grid>
-    }
-    return React.cloneElement(subComponent, {
-        key: uuidV4(),
+
+    const preChildren = React.cloneElement(subComponent, {
+        size,
+        disabled,
         ...subComponent.props,
         ...props,
-        fullWidth: true
-    })
+    });
+    if (layout === 'Grid') {
+        return <Grid {...(itemProps || {})} {...gridProps} item>
+            {preChildren}
+        </Grid>
+    }
+    return preChildren
 }
 
 export default FormItem;

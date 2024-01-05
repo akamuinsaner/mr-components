@@ -58,7 +58,7 @@ const TreeSelect = ({
     const [initialized, setInitialized] = React.useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
     const [hovering, setHovering] = React.useState<boolean>(false);
-    const [selected, setSelected] = React.useState<Array<string | number>>([]);
+    const [selected, setSelected] = React.useState<Array<string | number>>(Array.isArray(value) ? value : (value ? [value] : []));
     const [tagLimit, setTagLimit] = React.useState<number>(10000);
     const [flattedOptions, setFlattedOptions] = React.useState<TreeSelectOption[]>(flatOptions(options));
     const [allChildrenMap, setAllChildrenMap] = React.useState<Map<number | string, TreeSelectOption[]>>(new Map())
@@ -92,16 +92,12 @@ const TreeSelect = ({
         }
     }, [maxTagCount, tagWidths, selected]);
 
-    React.useEffect(() => {
-        if (Array.isArray(value)) setSelected(value);
-        else setSelected(value ? [value] : []);
-    }, [value, multiple]);
 
     const onClear = () => setSelected([]);
     const openDropDown = (e) => {
         e.stopPropagation();
         setInputValue('');
-        setAnchorEl(eleRef.current);
+        setAnchorEl(inputRef.current);
     };
     const closeOptions = (e) => {
         setInputValue('');
@@ -121,7 +117,6 @@ const TreeSelect = ({
             document.addEventListener('click', closeOptions)
         }, 300);
     }, [anchorEl])
-
 
     const renderTags = (value: readonly any[], getTagProps) => {
         const rendered = value.slice(0, tagLimit);
@@ -164,9 +159,9 @@ const TreeSelect = ({
             <TextField
                 {...params}
                 {...inputProps}
-                ref={inputRef}
                 onClick={e => e.stopPropagation()}
                 focused={isFocus}
+                ref={inputRef}
                 placeholder={(isFocus && !multiple) ? renderValue() : inputProps.placeholder}
                 sx={{
                     '& .MuiAutocomplete-inputRoot': {
@@ -195,11 +190,11 @@ const TreeSelect = ({
                 ref={eleRef}
                 options={[]}
                 open={false}
+                onFocus={openDropDown}
                 readOnly={!(search && !!anchorEl)}
                 multiple={multiple}
                 disableClearable={true}
                 value={renderValue()}
-                onFocus={openDropDown}
                 inputValue={inputValue}
                 onClick={e => e.stopPropagation()}
                 onInputChange={onInputChange}

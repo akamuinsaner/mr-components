@@ -17,11 +17,12 @@ export type FormItemProps = {
         }>): JSX.Element;
     };
     rules?: RuleConfig[];
+    checkable?: boolean;
     multiple?: boolean;
     gridProps?: GridProps | null;
 };
-export type FormItemExtraProps = {
-    emitValue?(v: any): void;
+export type FormItemInstanceType = {
+    onChange?(v: any): void;
     getValue?: () => any;
     setValue?: (v: any) => void;
     setError?: (error: string) => void;
