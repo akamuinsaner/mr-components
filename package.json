@@ -1,5 +1,5 @@
 {
-  "name": "mr-components",
+  "name": "@akamuinsaner/mr-components",
   "version": "0.1.0",
   "private": false,
   "author": "akamuinsaner",
@@ -16,6 +16,9 @@
     "component",
     "form"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/akamuinsaner/mr-components.git"
