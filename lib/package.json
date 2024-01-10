@@ -1,5 +1,5 @@
 {
-  "name": "mr-components",
+  "name": "mrt-components",
   "version": "0.1.0",
   "private": false,
   "author": "akamuinsaner",
@@ -12,12 +12,13 @@
     "react",
     "material-ui",
     "mui",
+    "typescript",
     "component",
     "form"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akamuinsaner/mr-components.git"
+    "url": "git+https://github.com/akamuinsaner/mrt-components.git"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
