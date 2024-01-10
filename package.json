@@ -24,7 +24,6 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.2",
     "@mui/material": "^5.15.2",
-    "husky": "^8.0.3",
     "react": "^18.2.0",
     "uuid": "^9.0.1"
   },
@@ -33,18 +32,14 @@
     "@types/react": "^18.2.46",
     "copyfiles": "^2.4.1",
     "react-scripts": "5.0.1",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "husky": "^8.0.3"
   },
   "scripts": {
     "copy": "copyfiles ./package.json ./package-lock.json ./README.md lib",
     "build": "tsc && npm run copy",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build"
-    }
   },
   "eslintConfig": {
     "extends": [

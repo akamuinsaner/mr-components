@@ -6,6 +6,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "module": "index.js",
+  "license": "MIT",
   "description": "Some complementary components based on material-ui and react",
   "keywords": [
     "react",
@@ -31,10 +32,11 @@
     "@types/react": "^18.2.46",
     "copyfiles": "^2.4.1",
     "react-scripts": "5.0.1",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "husky": "^8.0.3"
   },
   "scripts": {
-    "copy": "copyfiles ./package.json ./package-lock.json lib",
+    "copy": "copyfiles ./package.json ./package-lock.json ./README.md lib",
     "build": "tsc && npm run copy",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
