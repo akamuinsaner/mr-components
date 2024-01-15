@@ -27,7 +27,12 @@
     "noImplicitAny": false,
     "emitDeclarationOnly": false,
     "downlevelIteration": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "plugins": [
+      {
+        "name": "typescript-plugin-css-modules"
+      }
+    ]
   },
   "include": [
     "src/*.ts",

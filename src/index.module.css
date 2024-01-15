@@ -1,0 +1,49 @@
+.mr-table-wrpper {
+    display: flex;
+    flex-direction: column;
+}
+.mr-table-wrpper-scroll {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.mr-table-container {
+    width: auto;
+    overflow: hidden;
+}
+.mr-table-container-scroll-x {
+    width: 100%;
+    overflow-x: auto;
+    table-layout: fixed;
+}
+.mr-table-container-scroll-y {
+    overflow-y: auto;
+}
+.mr-table {
+    table-layout: auto;
+    overflow-x: hidden;
+}
+.mr-table-bordered {
+    border-collapse: collapse !important;
+}
+.mr-table-bordered th,.mr-table-bordered td {
+    border: 1px solid rgba(224, 224, 224, 1);
+}
+.mr-table-fixed {
+    table-layout: fixed;
+}
+
+.mr-table-header-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.mr-table-paganition {
+    flex-shrink: 0;
+}
+.mr-table-filter-popper {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 8px 5px 8px rgba(0, 0, 0, 0.3);
+}
