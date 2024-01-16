@@ -274,7 +274,6 @@ const RecordTableRow = <T,>({
             isSorting,
             isOver
         } = useSortable({ id: rowKey, disabled });
-        console.log(isDragging, isOver, isSorting)
         let style = Object.assign({}, {
             transform: CSS.Transform.toString(transform),
             transition,
