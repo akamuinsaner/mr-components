@@ -14,6 +14,11 @@ export type RecordTableHeaderCellProps<T> = {
     onFilterChange?: (filterParams: {
         [name: string]: Array<string | number>;
     }) => void;
+    scrollingInfo: {
+        scrollTop: boolean;
+        scrollLeft: boolean;
+        scrollRight: boolean;
+    };
 };
 export type RecordTableHeaderProps<T> = Partial<RecordTableProps<T>> & {
     sortParams: RecordTableSortParams;
@@ -29,6 +34,11 @@ export type RecordTableHeaderProps<T> = Partial<RecordTableProps<T>> & {
     onFilterChange?: (filterParams: {
         [name: string]: Array<string | number>;
     }) => void;
+    scrollingInfo: {
+        scrollTop: boolean;
+        scrollLeft: boolean;
+        scrollRight: boolean;
+    };
 };
-declare const RecordTableHeader: <T>({ sortParams, onSortChange, selectRowKeys, dataSource, onSelectAll, rowKey, isSticky, renderColumns, filterParams, onFilterChange }: RecordTableHeaderProps<T>) => import("react/jsx-runtime").JSX.Element;
+declare const RecordTableHeader: <T>({ sortParams, onSortChange, selectRowKeys, dataSource, onSelectAll, rowKey, isSticky, renderColumns, filterParams, onFilterChange, scrollingInfo, }: RecordTableHeaderProps<T>) => import("react/jsx-runtime").JSX.Element;
 export default RecordTableHeader;

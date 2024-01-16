@@ -1,4 +1,4 @@
-import { TableProps, TableContainerProps, TablePaginationProps, PopperProps } from '@mui/material';
+import { TableProps, TableContainerProps, TablePaginationProps, PopperProps, CircularProgressProps } from '@mui/material';
 import React from 'react';
 import { RecordTableFilters, ReactTableFilterModes } from './Filter';
 export type RecordTableSortDirections = 'asc' | 'desc';
@@ -12,6 +12,7 @@ export type RecordTableColumn<T> = {
     colSpan?: number;
     rowSpan?: number;
     dataIndex?: string | string[];
+    noBorderRight: boolean;
     key: string;
     render?: (value: any, record: T, index: number) => any;
     sortable?: boolean;
@@ -31,12 +32,14 @@ export type RecordTableExpandable<T> = {
     expandedRowRender?: (record: T, index: number, expanded: any) => React.ReactNode;
     expandRowByClick?: boolean;
     expandIcon?: (record: T, index: number, expanded: any) => React.ReactNode;
+    fixed?: boolean;
     onExpand?: (record: T) => void;
     onExpandedRowsChange?: (expandKeys: Array<string | number>, expandedRows: T[]) => void;
 };
 export type RecordTableRowSelection<T> = {
     columnTitle?: string | number | React.ReactNode;
     defaultSelectedRowKeys?: Array<string | number>;
+    fixed?: boolean;
     hideSelectAll?: boolean;
     onChange?: (selectedRowKeys: RecordTableRowSelection<T>['selectedRowKeys'], selectRows: T[]) => void;
     onSelect?: (record: T, selected: boolean) => void;
@@ -91,6 +94,7 @@ export type RecordTableProps<T> = {
     dataSource: T[];
     dropable?: RecordTableDropable<T>;
     expandable?: RecordTableExpandable<T>;
+    loading?: false | CircularProgressProps;
     pagination?: TablePaginationProps | false;
     rowClassName?: string | {
         (record: T, index: number): string;
@@ -114,5 +118,5 @@ export type RecordTableProps<T> = {
     }) => void;
 };
 export declare const MRTableContext: React.Context<Partial<RecordTableProps<any>>>;
-declare const RecordTable: <T extends object>({ bordered, className, columns, dataSource, component, expandable, pagination, rowClassName, rowKey, rowSelection, size, sticky, sortInfo, onChange, scroll, dropable, filterInfo, sx, }: RecordTableProps<T>) => import("react/jsx-runtime").JSX.Element;
+declare const RecordTable: <T extends object>({ bordered, className, columns, dataSource, component, expandable, loading, pagination, rowClassName, rowKey, rowSelection, size, sticky, sortInfo, onChange, scroll, dropable, filterInfo, sx, }: RecordTableProps<T>) => import("react/jsx-runtime").JSX.Element;
 export default RecordTable;

@@ -43,12 +43,32 @@ export const getRowClassName = <T>(record: T, rowClassName: RecordTableProps<T>[
     return typeof rowClassName === 'function' ? rowClassName(record, index) : rowClassName;
 }
 
+export const getFilteredData = (dataSource: any[], filterParams: { [name: string]: Array<string | number>}) => {
+    let data = [...dataSource];
+    data = data.filter(d => {
+        let success = true;
+        for (let [key, values] of Object.entries(filterParams)) {
+            const value = d[key];
+            if (!values || !values.length) continue;
+            success = !!values.find(v => {
+                if (typeof v === 'string') {
+                    return `${value}`.indexOf(v) > -1;
+                } else {
+                    return v === value;
+                }
+            })
+            if (!success) break;
+        }
+        return success
+    });
+    return data;
+}
+
 export const getDataDisplay = (
     dataSource: any[],
     pagination: Partial<TablePaginationProps> | false,
     pageParams: Partial<TablePaginationProps>,
     sortParams: RecordTableSortParams,
-    filterParams: { [name: string]: Array<string | number>}
 ) => {
     let data = [...dataSource];
     const { order, orderBy } = sortParams;
@@ -56,24 +76,6 @@ export const getDataDisplay = (
     if (order === 'asc' && orderBy) sorter = (a, b) => a[orderBy] > b[orderBy] ? 1 : -1;
     if (order === 'desc' && orderBy) sorter = (a, b) => a[orderBy] > b[orderBy] ? -1 : 1;
     data = data.sort(sorter);
-    if (filterParams) {
-        data = data.filter(d => {
-            let success = true;
-            for (let [key, values] of Object.entries(filterParams)) {
-                const value = d[key];
-                if (!values || !values.length) break;
-                success = !!values.find(v => {
-                    if (typeof v === 'string') {
-                        return `${value}`.indexOf(v) > -1;
-                    } else {
-                        return v === value;
-                    }
-                })
-                if (!success) break;
-            }
-            return success
-        });
-    }
     if (pagination === false || !!pagination) {
         data = data;
     } else {
@@ -91,31 +93,44 @@ export const getContainerSizeByScroll = (scroll: { x?: number | 'auto', y?: numb
     return { width, height };
 }
 
-export const getFixedWidth = (columns: RecordTableColumn<any>[], key: any) => {
+export const getFixedWidth = (
+    columns: RecordTableColumn<any>[],
+    key: any,
+    expandFixed: boolean,
+    selectFixed: boolean,
+) => {
     const column = columns.find(item => item.key === key);
     if (!column || !column.fixed) return null;
-    let fixDistance = 0;
     if (column.fixed === 'left') {
+        let fixDistance = (expandFixed && selectFixed) ? 100 : ((expandFixed || selectFixed) ? 50 : 0);
         for (let i = 0; i < columns.length; i++) {
             if (columns[i].key === key) break;
             if (!columns[i].width) return null;
             fixDistance += columns[i].width;
         }
+        return fixDistance;
     }
     if (column.fixed === 'right') {
+        let fixDistance = 0;
         for (let i = columns.length - 1; i >= 0; i--) {
             if (columns[i].key === key) break;
             if (!columns[i].width) return null;
             fixDistance += columns[i].width;
         }
+        return fixDistance;
     }
-    return fixDistance;
 }
 
-export const getFixedStyle = (fixed: 'left' | 'right', columns: RecordTableColumn<any>[], key: any) => {
+export const getFixedStyle = (
+    fixed: 'left' | 'right',
+    columns: RecordTableColumn<any>[],
+    key: any,
+    expandFixed: boolean,
+    selectFixed: boolean,
+) => {
     if (fixed && fixed === 'left') {
         return Object.assign({}, {
-            left: getFixedWidth(columns, key),
+            left: getFixedWidth(columns, key, expandFixed, selectFixed),
             position: 'sticky',
             backgroundColor: '#fff',
             zIndex: 5,
@@ -123,7 +138,7 @@ export const getFixedStyle = (fixed: 'left' | 'right', columns: RecordTableColum
     }
     if (fixed && fixed === 'right') {
         return Object.assign({}, {
-            right: getFixedWidth(columns, key),
+            right: getFixedWidth(columns, key, expandFixed, selectFixed),
             position: 'sticky',
             backgroundColor: '#fff',
             zIndex: 5,
@@ -147,8 +162,17 @@ export const getRenderColumns = (columns: RecordTableColumn<any>[]): any => {
     let columnsList = [];
     const separateColumnsByLevel = (columns: RecordTableColumn<any>[]) => {
         let nextLevelColumns = [];
-        columns.map(column => {
-            if (column.children && column.children.length) nextLevelColumns = [...nextLevelColumns, ...column.children];
+        columns.map((column, index) => {
+            const nextItem = columns[index + 1];
+            if (column.children && column.children.length) {
+                if (nextItem || column.noBorderRight) {
+                    column.children[column.children.length - 1].noBorderRight = true;
+                }
+                nextLevelColumns = [
+                    ...nextLevelColumns, 
+                    ...(column.children)
+                ];
+            }
         })
         columnsList.push(columns);
         if (nextLevelColumns.length) {

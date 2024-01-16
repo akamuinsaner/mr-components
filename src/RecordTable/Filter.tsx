@@ -11,7 +11,8 @@ import {
     Autocomplete,
     TextField,
     MenuItem,
-    PopperProps
+    PopperProps,
+    Stack
 } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import styles from '../index.module.css';
@@ -20,6 +21,7 @@ import {
     RecordTableProps,
     MRTableContext,
 } from '.';
+import classNames from 'classnames';
 
 export type RecordTableFilters = {
     parentId?: string | number;
@@ -35,23 +37,24 @@ export type RecordTableFilterProps = {
     index: number;
     value?: Array<string | number>;
     onChange?: (value: Array<string | number>) => void;
+    children?: any;
 }
 
 export default ({
     column,
     index,
     value,
-    onChange
+    onChange,
+    children
 }: RecordTableFilterProps) => {
     const context = React.useContext<Partial<RecordTableProps<any>>>(MRTableContext);
     const { filterInfo } = context;
     const filters = filterInfo ?.filters ? filterInfo?.filters(column, index) : column.filters
-    if (!filters) return null;
     const mode = filterInfo?.filterMode ? filterInfo?.filterMode(column, index) : column.filterMode
     const [values, setValues] = React.useState<Array<string | number>>([]);
     const [anchorEl, setAnchorEl] = React.useState(null);
     React.useEffect(() => {
-        if (value) setValues(value);
+        setValues(value || []);
     }, [value])
     const reset = (e) => {
         e.stopPropagation();
@@ -138,20 +141,26 @@ export default ({
     }
 
     let FilterIcon: any = FilterAltIcon;
+    let filterIconProps = {
+        fontSize: 'small',
+        className: classNames(styles["mr-table-filter-icon"])
+    };
     if (filterInfo?.filterIcon) {
         FilterIcon = filterInfo.filterIcon(column, index);
     }
+    if (value && value.length) {
+        filterIconProps = Object.assign({}, filterIconProps, { htmlColor: "#1976d2" });
+    }
 
     return (
-        <>
+        <Stack justifyContent="space-between" direction="row">
+            {children}
             <IconButton
                 size='small'
-                sx={{ float: 'right' }}
+                sx={{ float: 'right', padding: 0 }}
                 onClick={showPopper}
             >
-                <FilterIcon
-                    fontSize="small"
-                />
+                <FilterIcon {...filterIconProps}  />
             </IconButton>
             <Popper {...popperProps}>
                 <DialogContent>
@@ -171,7 +180,7 @@ export default ({
                     >confirm</Button>
                 </DialogActions>
             </Popper>
-        </>
+        </Stack>
 
     )
 }

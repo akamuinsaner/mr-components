@@ -40,9 +40,12 @@ import {
 import {
     restrictToVerticalAxis,
     restrictToWindowEdges,
-  } from '@dnd-kit/modifiers';
+} from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import styles from '../index.module.css'
+
+import classNames from 'classnames';
 
 type RecordTableCellProps<T> = {
     data: any;
@@ -50,8 +53,11 @@ type RecordTableCellProps<T> = {
     onCell: any;
     width: number;
     columns: RecordTableColumn<T>[];
+    column: RecordTableColumn<T>;
     columnKey: any;
     fixed: 'left' | 'right';
+    scrollingInfo: { scrollTop: boolean; scrollLeft: boolean; scrollRight: boolean; };
+    columnIndex: number;
 }
 
 const RecordTableBodyCell = <T,>({
@@ -60,16 +66,38 @@ const RecordTableBodyCell = <T,>({
     onCell,
     width,
     columns,
+    column,
     columnKey,
-    fixed
+    fixed,
+    scrollingInfo,
+    columnIndex
 }: RecordTableCellProps<T>) => {
     const colSpan = onCell?.colSpan;
     const rowSpan = onCell?.rowSpan;
-
+    const context = React.useContext<Partial<RecordTableProps<T>>>(MRTableContext);
+    const {
+        expandable,
+        rowSelection,
+        scroll
+    } = context;
     if (colSpan === 0 || rowSpan === 0) return;
     let sx = onCell?.sx || {};
-    const fixedStyle = getFixedStyle(fixed, columns, columnKey);
+    const fixedStyle = scroll?.x ? getFixedStyle(
+        fixed,
+        columns,
+        columnKey,
+        expandable?.fixed,
+        rowSelection?.fixed
+    ) : {};
     sx = Object.assign({}, fixedStyle, sx);
+    const showLeftFixShadow = !scrollingInfo.scrollLeft
+        && column.fixed === 'left'
+        && columns[columnIndex + 1]
+        && columns[columnIndex + 1].fixed !== 'left';
+    const showRightFixShadow = !scrollingInfo.scrollRight
+        && column.fixed === 'right'
+        && columns[columnIndex - 1]
+        && columns[columnIndex - 1].fixed !== 'right';
     return (
         <TableCell
             align={align}
@@ -77,6 +105,10 @@ const RecordTableBodyCell = <T,>({
             rowSpan={rowSpan}
             width={width}
             sx={sx}
+            className={classNames({
+                [styles["mr-table-column-scroll-left"]]: showLeftFixShadow,
+                [styles["mr-table-column-scroll-right"]]: showRightFixShadow,
+            })}
         >
             {data}
         </TableCell>
@@ -86,24 +118,26 @@ const RecordTableBodyCell = <T,>({
 
 type RecordTableRowProps<T> = Partial<RecordTableProps<T>> & {
     record: T;
-    index: number;
+    rowIndex: number;
     selectRowKeys: Array<string | number>;
     onSelectChange: (keys: Array<number | string>, index: number, select?: boolean, row?: T) => void;
     rowKey: number | string;
     expanded: boolean;
     onExpandChange: (key: number | string, expand: boolean, record: T) => void;
+    scrollingInfo: { scrollTop: boolean; scrollLeft: boolean; scrollRight: boolean; };
 }
 
 
 const RecordTableRow = <T,>({
     record,
     columns,
-    index,
+    rowIndex,
     rowKey,
     selectRowKeys,
     onSelectChange,
     expanded,
     onExpandChange,
+    scrollingInfo,
 }: RecordTableRowProps<T>) => {
     const context = React.useContext<Partial<RecordTableProps<T>>>(MRTableContext);
     const {
@@ -115,33 +149,36 @@ const RecordTableRow = <T,>({
     const onCheckBoxChange = (e) => {
         const checked = e.target.checked;
         if (checked) {
-            onSelectChange(Array.from(new Set([...selectRowKeys, rowKey])), index, true, record);
+            onSelectChange(Array.from(new Set([...selectRowKeys, rowKey])), rowIndex, true, record);
         } else {
-            onSelectChange(selectRowKeys.filter(k => k !== rowKey), index, false, record);
+            onSelectChange(selectRowKeys.filter(k => k !== rowKey), rowIndex, false, record);
         }
     }
 
     const onRadioChange = (e) => {
         const checked = e.target.checked;
         if (checked) {
-            onSelectChange([rowKey], index, true, record);
+            onSelectChange([rowKey], rowIndex, true, record);
         } else {
-            onSelectChange([], index, false, record);
+            onSelectChange([], rowIndex, false, record);
         }
     }
 
     const renderTableCells = () => {
-        return columns.map(column => {
+        return columns.map((column, columnIndex) => {
             return (
                 <RecordTableBodyCell
                     key={column.key}
                     columnKey={column.key}
                     width={column.width}
                     align={column.align}
-                    data={getCellData<T>(column, record, index)}
-                    onCell={column.onCell && column.onCell(record, index)}
+                    data={getCellData<T>(column, record, rowIndex)}
+                    onCell={column.onCell && column.onCell(record, rowIndex)}
                     columns={columns}
+                    column={column}
+                    columnIndex={columnIndex}
                     fixed={column.fixed}
+                    scrollingInfo={scrollingInfo}
                 />
             )
         })
@@ -149,16 +186,25 @@ const RecordTableRow = <T,>({
 
     const renderSelectionCell = () => {
         if (!rowSelection) return null;
+        let sx = {};
+        let className = classNames({
+            [styles["mr-table-selection-fixed"]]: rowSelection?.fixed,
+            [styles["mr-table-selection-fixed-after-expand"]]: expandable?.fixed
+        })
         if (rowSelection.type === 'radio') {
-            return <TableCell padding='checkbox'><Radio
-                checked={selectRowKeys[0] === rowKey}
-                onChange={onRadioChange}
-            /></TableCell>;
+            return (<TableCell sx={sx} padding='checkbox' className={className}>
+                <Radio
+                    checked={selectRowKeys[0] === rowKey}
+                    onChange={onRadioChange}
+                />
+            </TableCell>);
         } else {
-            return <TableCell padding='checkbox'><Checkbox
-                checked={selectRowKeys.includes(rowKey)}
-                onChange={onCheckBoxChange}
-            /></TableCell>;
+            return (<TableCell className={className} sx={sx} padding='checkbox'>
+                <Checkbox
+                    checked={selectRowKeys.includes(rowKey)}
+                    onChange={onCheckBoxChange}
+                />
+            </TableCell>);
         }
     }
 
@@ -168,8 +214,14 @@ const RecordTableRow = <T,>({
 
     const renderExpandCell = () => {
         if (!expandable) return null;
+        let sx = {};
+        let className = classNames({
+            [styles["mr-table-expandable-fixed"]]: expandable?.fixed
+        })
         return <TableCell
             padding='checkbox'
+            sx={sx}
+            className={className}
         >
             <IconButton
                 size="small"
@@ -179,7 +231,7 @@ const RecordTableRow = <T,>({
                 }}
             >
                 {expandable?.expandIcon
-                    ? expandable?.expandIcon(record, index, expanded)
+                    ? expandable?.expandIcon(record, rowIndex, expanded)
                     : defaultExpandIcon}
             </IconButton>
 
@@ -190,8 +242,12 @@ const RecordTableRow = <T,>({
         if (!expanded || !expandable) return null;
         let colSpan = columns.length + 1;
         if (rowSelection) colSpan += 1;
-        const rowClassName = expandable?.expandedRowClassName(record, index);
-        const rowRender = expandable?.expandedRowRender(record, index, expanded);
+        const rowClassName = expandable?.expandedRowClassName
+            ? expandable.expandedRowClassName(record, rowIndex)
+            : '';
+        const rowRender = expandable?.expandedRowRender
+            ? expandable.expandedRowRender(record, rowIndex, expanded)
+            : '';
         return <TableRow className={rowClassName}>
             <TableCell colSpan={colSpan}>
                 {rowRender}
@@ -207,54 +263,34 @@ const RecordTableRow = <T,>({
     }
 
     if (dropable) {
-        const disabled = dropable.disabledRows ? dropable.disabledRows(record, index) : false;
+        const disabled = dropable.disabledRows ? dropable.disabledRows(record, rowIndex) : false;
         const {
             attributes,
             listeners,
             setNodeRef,
             transform,
             transition,
-            isDragging
-        } = useSortable({
-            id: rowKey,
-            disabled,
-        });
-
-        let style = {
+            isDragging,
+            isSorting,
+            isOver
+        } = useSortable({ id: rowKey, disabled });
+        console.log(isDragging, isOver, isSorting)
+        let style = Object.assign({}, {
             transform: CSS.Transform.toString(transform),
             transition,
-            cursor: 'grab'
-        };
+        }, isDragging ? dropable?.dragStyle : null);
 
-        const draggingStyles = {
-            background: '#fff',
-            boxShadow: '8px 5px 10px rgba(0, 0, 0, 0.3)',
-            userSelect: 'none'
-        }
-
-        const disableStyles = {
-            cursor: 'not-allowed',
-            background: '#eee',
-            '& .MuiTableCell-root': {
-                color: '#aaa',
-            }
-        }
-
-        if (isDragging) {
-            style = Object.assign({}, style, draggingStyles, dropable.dragStyle);
-        }
-
-        if (disabled) {
-            style = Object.assign({}, style, disableStyles, dropable.disableStyle);
-        }
-
+        const finalClassNames = classNames(getRowClassName(record, rowClassName, rowIndex), {
+            [styles["mr-table-row-disable"]]: disabled,
+            [styles["mr-table-row-dragging"]]: isDragging,
+        })
         return (
             <>
                 <TableRow
                     hover
                     tabIndex={-1}
                     key={rowKey}
-                    className={getRowClassName(record, rowClassName, index)}
+                    className={finalClassNames}
                     onClick={onRowClick}
                     ref={setNodeRef}
                     sx={style}
@@ -276,7 +312,7 @@ const RecordTableRow = <T,>({
                 hover
                 tabIndex={-1}
                 key={rowKey}
-                className={getRowClassName(record, rowClassName, index)}
+                className={getRowClassName(record, rowClassName, rowIndex)}
                 onClick={onRowClick}
             >
                 {renderExpandCell()}
@@ -294,7 +330,8 @@ type RecordTableBodyProps<T> = Partial<RecordTableProps<T>> & {
     onSelectChange: (keys: Array<number | string>, index: number, select?: boolean, row?: T) => void;
     expandedRowKeys: Array<string | number>;
     onExpandChange: (key: number | string, expand: boolean, record: T) => void;
-    pageParams: Partial<TablePaginationProps>
+    pageParams: Partial<TablePaginationProps>;
+    scrollingInfo: { scrollTop: boolean; scrollLeft: boolean; scrollRight: boolean; };
 }
 
 const RecordTableBody = <T,>({
@@ -306,6 +343,7 @@ const RecordTableBody = <T,>({
     expandedRowKeys,
     onExpandChange,
     pageParams,
+    scrollingInfo,
 }: RecordTableBodyProps<T>) => {
     const context = React.useContext<Partial<RecordTableProps<T>>>(MRTableContext);
     const {
@@ -320,12 +358,13 @@ const RecordTableBody = <T,>({
                     key={finalRowKey}
                     columns={columns}
                     record={record}
-                    index={index}
+                    rowIndex={index}
                     rowKey={finalRowKey}
                     selectRowKeys={selectRowKeys}
                     onSelectChange={onSelectChange}
                     expanded={expanded}
                     onExpandChange={onExpandChange}
+                    scrollingInfo={scrollingInfo}
                 />
             )
         })

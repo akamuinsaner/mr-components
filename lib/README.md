@@ -9,7 +9,7 @@ React [https://react.dev/](https://react.dev/).
 MaterialUI [https://mui.com/](https://mui.com/).
 
 ## Typescript
-MaterialUI [https://www.typescriptlang.org/](https://www.typescriptlang.org/).
+Typescript [https://www.typescriptlang.org/](https://www.typescriptlang.org/).
 
 ## build
 ```
@@ -28,4 +28,5 @@ npm run build
 - Form
 - Cascader
 - TreeSelect
+- RecordTable
 

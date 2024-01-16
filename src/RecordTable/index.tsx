@@ -7,6 +7,8 @@ import {
     TableContainerProps,
     TablePaginationProps,
     PopperProps,
+    CircularProgress,
+    CircularProgressProps,
 } from '@mui/material';
 import React from 'react';
 import RecordTableHeader from './Header';
@@ -19,6 +21,7 @@ import {
     getContainerSizeByScroll,
     getRenderColumns,
     getDataColumns,
+    getFilteredData,
 } from './helper';
 import classNames from 'classnames';
 import styles from '../index.module.css';
@@ -40,6 +43,7 @@ export type RecordTableColumn<T> = {
     colSpan?: number;
     rowSpan?: number;
     dataIndex?: string | string[];
+    noBorderRight: boolean;
     key: string;
     render?: (value: any, record: T, index: number) => any;
     sortable?: boolean;
@@ -60,6 +64,7 @@ export type RecordTableExpandable<T> = {
     expandedRowRender?: (record: T, index: number, expanded) => React.ReactNode;
     expandRowByClick?: boolean;
     expandIcon?: (record: T, index: number, expanded) => React.ReactNode;
+    fixed?: boolean;
     onExpand?: (record: T) => void;
     onExpandedRowsChange?: (expandKeys: Array<string | number>, expandedRows: T[]) => void;
 }
@@ -67,6 +72,7 @@ export type RecordTableExpandable<T> = {
 export type RecordTableRowSelection<T> = {
     columnTitle?: string | number | React.ReactNode;
     defaultSelectedRowKeys?: Array<string | number>;
+    fixed?: boolean;
     hideSelectAll?: boolean;
     onChange?: (selectedRowKeys: RecordTableRowSelection<T>['selectedRowKeys'], selectRows: T[]) => void;
     onSelect?: (record: T, selected: boolean) => void;
@@ -93,13 +99,13 @@ export type RecordTableDropable<T> = {
 }
 
 export type RecordTableFilterable<T> = {
-    defaultFilterParams?: { [name: string]: Array<string | number>};
+    defaultFilterParams?: { [name: string]: Array<string | number> };
     filterIcon?: (column: RecordTableColumn<T>, index: number) => React.JSXElementConstructor<any>;
     filterMode?: (column: RecordTableColumn<T>, index: number) => ReactTableFilterModes;
     filters?: (column: RecordTableColumn<T>, index: number) => RecordTableFilters[];
-    filterParams?: { [name: string]: Array<string | number>};
-    onFilterChange?: (filterParams: { [name: string]: Array<string | number>}) => void;
-    popperProps?: Partial<PopperProps> | {(column: RecordTableColumn<T>, index: number): Partial<PopperProps>};
+    filterParams?: { [name: string]: Array<string | number> };
+    onFilterChange?: (filterParams: { [name: string]: Array<string | number> }) => void;
+    popperProps?: Partial<PopperProps> | { (column: RecordTableColumn<T>, index: number): Partial<PopperProps> };
 }
 
 export type RecordTableProps<T> = {
@@ -110,6 +116,7 @@ export type RecordTableProps<T> = {
     dataSource: T[];
     dropable?: RecordTableDropable<T>;
     expandable?: RecordTableExpandable<T>;
+    loading?: false | CircularProgressProps;
     pagination?: TablePaginationProps | false;
     rowClassName?: string | { (record: T, index: number): string };
     rowKey?: string | number | { (record: T): string | number };
@@ -136,6 +143,7 @@ const RecordTable = <T extends object>({
     dataSource,
     component = Box,
     expandable,
+    loading,
     pagination,
     rowClassName = '',
     rowKey,
@@ -149,19 +157,50 @@ const RecordTable = <T extends object>({
     filterInfo,
     sx = {},
 }: RecordTableProps<T>) => {
+
     const dataColumns = getDataColumns(columns);
     const renderColumns = getRenderColumns(columns);
+    const [filteredData, setFilteredData] = React.useState<T[]>([]);
     const [displayData, setDisplayData] = React.useState<T[]>([]);
-
     const getRowsFromKeys = (keys) => {
         return displayData.filter((d, index) => keys.includes(getRowKey(d, rowKey, index)));
     }
 
+    /**********scroll start***********/
+    let scrollTimer: NodeJS.Timeout;
+    const containerRef = React.useRef<HTMLElement>(null);
+    const [scrollingInfo, setScrollingInfo] = React.useState<{
+        scrollTop: boolean;
+        scrollLeft: boolean;
+        scrollRight: boolean;
+    }>({
+        scrollTop: false,
+        scrollLeft: false,
+        scrollRight: false,
+    });
+    const containerScrolling = () => {
+        clearTimeout(scrollTimer);
+        setTimeout(() => {
+            const element = containerRef.current;
+            const { scrollTop, scrollWidth, scrollLeft, clientWidth } = element;
+            setScrollingInfo({
+                scrollTop: scrollTop === 0,
+                scrollLeft: scrollLeft === 0,
+                scrollRight: scrollWidth === scrollLeft + clientWidth,
+            })
+        }, 300);
+    }
+    React.useEffect(() => {
+        containerScrolling();
+        containerRef.current.addEventListener('scroll', containerScrolling);
+        return () => containerRef.current.removeEventListener('scroll', containerScrolling);
+    }, []);
+    /**********scroll end***********/
 
     /**********filter start**********/
     const [filterParams, setFilterParams]
-        = React.useState<{ [name: string]: Array<string | number>}>(Object.assign({}, filterInfo?.defaultFilterParams));
-    const onFilterChange = (params: { [name: string]: Array<string | number>}) => {
+        = React.useState<{ [name: string]: Array<string | number> }>(Object.assign({}, filterInfo?.defaultFilterParams));
+    const onFilterChange = (params: { [name: string]: Array<string | number> }) => {
         onPaginationChange(0, pageParams.rowsPerPage);
         const newFilterParams = { ...filterParams, ...params };
         if (!filterInfo?.filterParams) setFilterParams(newFilterParams);
@@ -170,13 +209,19 @@ const RecordTable = <T extends object>({
     React.useEffect(() => {
         if (filterInfo?.filterParams) setFilterParams(filterInfo?.filterParams);
     }, [filterInfo?.filterParams]);
+
+    React.useEffect(() => {
+        const filteredData = getFilteredData(dataSource, filterParams);
+        setFilteredData(filteredData);
+        setPageParams({ ...pageParams, page: 0, count: filteredData.length });
+    }, [dataSource, filterParams]);
     /**********filter end**********/
 
     /********pagination start*******/
     const defaultPageParams: Partial<TablePaginationProps> = {
         count: dataSource.length,
         page: 0,
-        rowsPerPage: pagination === false ?  dataSource.length : 10,
+        rowsPerPage: pagination === false ? dataSource.length : 10,
     }
     const [pageParams, setPageParams]
         = React.useState<Partial<TablePaginationProps>>(Object.assign({}, defaultPageParams, pagination));
@@ -202,7 +247,7 @@ const RecordTable = <T extends object>({
         onSelectAll([], []);
         if (!sortInfo?.sortParams) setSortParams(sortParams);
         if (sortInfo?.onSortChange) sortInfo.onSortChange(sortParams);
-    }   
+    }
     React.useEffect(() => {
         if (sortInfo?.sortParams) setSortParams(sortInfo?.sortParams);
     }, [sortInfo?.sortParams]);
@@ -255,8 +300,9 @@ const RecordTable = <T extends object>({
     /*******expandable end*******/
 
     React.useEffect(() => {
-        setDisplayData(getDataDisplay(dataSource, pagination, pageParams, sortParams, filterParams))
-    }, [dataSource, pageParams, sortParams, filterParams, pagination]);
+        const newData = getDataDisplay(filteredData, pagination, pageParams, sortParams);
+        setDisplayData(newData);
+    }, [filteredData, pageParams, sortParams, pagination]);
 
     if (scroll?.x) {
         sx = Object.assign({}, sx, { width: `${scroll?.x}px` });
@@ -269,6 +315,7 @@ const RecordTable = <T extends object>({
             sortInfo,
             filterInfo,
             dropable,
+            scroll,
             rowClassName,
         }}>
             <Box className={classNames({
@@ -276,11 +323,13 @@ const RecordTable = <T extends object>({
                 [styles["mr-table-wrpper-scroll"]]: isSticky,
             })}>
                 <TableContainer
+                    ref={containerRef}
                     component={component}
                     className={classNames({
                         [styles["mr-table-container"]]: true,
                         [styles["mr-table-container-scroll-x"]]: !!scroll?.x,
                         [styles["mr-table-container-scroll-y"]]: isSticky,
+                        [styles["mr-table-container-scroll-top"]]: !scrollingInfo.scrollTop
                     })}
                     sx={getContainerSizeByScroll(scroll)}
                 >
@@ -307,6 +356,7 @@ const RecordTable = <T extends object>({
                             isSticky={isSticky}
                             onFilterChange={onFilterChange}
                             filterParams={filterParams}
+                            scrollingInfo={scrollingInfo}
                         />
                         <RecordTableBody<T>
                             rowKey={rowKey}
@@ -317,6 +367,7 @@ const RecordTable = <T extends object>({
                             expandedRowKeys={expandedRowKeys}
                             onExpandChange={onExpandChange}
                             pageParams={pageParams}
+                            scrollingInfo={scrollingInfo}
                         />
 
                     </Table>
@@ -326,6 +377,11 @@ const RecordTable = <T extends object>({
                     pagination={pagination}
                     onPaginationChange={onPaginationChange}
                 />
+                <Box className={classNames(styles["mr-table-loading-mask"], {
+                    [styles["hide"]]: !loading,
+                })}>
+                    <CircularProgress {...(loading || {})} />
+                </Box>
             </Box>
         </MRTableContext.Provider>
 

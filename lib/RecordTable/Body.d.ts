@@ -6,6 +6,11 @@ type RecordTableBodyProps<T> = Partial<RecordTableProps<T>> & {
     expandedRowKeys: Array<string | number>;
     onExpandChange: (key: number | string, expand: boolean, record: T) => void;
     pageParams: Partial<TablePaginationProps>;
+    scrollingInfo: {
+        scrollTop: boolean;
+        scrollLeft: boolean;
+        scrollRight: boolean;
+    };
 };
-declare const RecordTableBody: <T>({ rowKey, columns, dataSource, selectRowKeys, onSelectChange, expandedRowKeys, onExpandChange, pageParams, }: RecordTableBodyProps<T>) => import("react/jsx-runtime").JSX.Element;
+declare const RecordTableBody: <T>({ rowKey, columns, dataSource, selectRowKeys, onSelectChange, expandedRowKeys, onExpandChange, pageParams, scrollingInfo, }: RecordTableBodyProps<T>) => import("react/jsx-runtime").JSX.Element;
 export default RecordTableBody;
