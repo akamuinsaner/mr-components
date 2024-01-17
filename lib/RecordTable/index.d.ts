@@ -12,7 +12,7 @@ export type RecordTableColumn<T> = {
     colSpan?: number;
     rowSpan?: number;
     dataIndex?: string | string[];
-    noBorderRight: boolean;
+    noBorderRight?: boolean;
     key: string;
     render?: (value: any, record: T, index: number) => any;
     sortable?: boolean;

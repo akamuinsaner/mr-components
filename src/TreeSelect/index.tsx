@@ -190,6 +190,7 @@ const TreeSelect = ({
                 ref={eleRef}
                 options={[]}
                 open={false}
+                disabled={inputProps.disabled}
                 onFocus={openDropDown}
                 readOnly={!(search && !!anchorEl)}
                 multiple={multiple}

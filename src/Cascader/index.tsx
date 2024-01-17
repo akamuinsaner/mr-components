@@ -214,6 +214,7 @@ const Cascader = ({
                 open={false}
                 readOnly={!(search && !!anchorEl)}
                 multiple={multiple}
+                disabled={inputProps.disabled}
                 disableClearable={true}
                 value={renderValue()}
                 onFocus={openDropDown}
