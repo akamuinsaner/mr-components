@@ -43,7 +43,7 @@ import {
 } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import styles from '../index.module.css'
+import styles from './index.module.css'
 
 import classNames from 'classnames';
 

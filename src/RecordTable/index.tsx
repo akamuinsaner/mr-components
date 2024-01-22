@@ -24,7 +24,7 @@ import {
     getFilteredData,
 } from './helper';
 import classNames from 'classnames';
-import styles from '../index.module.css';
+import styles from './index.module.css';
 import {
     RecordTableFilters,
     ReactTableFilterModes
@@ -192,8 +192,8 @@ const RecordTable = <T extends object>({
     }
     React.useEffect(() => {
         containerScrolling();
-        containerRef.current.addEventListener('scroll', containerScrolling);
-        return () => containerRef.current.removeEventListener('scroll', containerScrolling);
+        containerRef.current && containerRef.current.addEventListener('scroll', containerScrolling);
+        return () => containerRef.current && containerRef.current.removeEventListener('scroll', containerScrolling);
     }, []);
     /**********scroll end***********/
 

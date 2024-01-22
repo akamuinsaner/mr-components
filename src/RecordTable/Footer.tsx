@@ -3,7 +3,7 @@ import {
     TableFooter,
     TablePagination
 } from '@mui/material';
-import styles from '../index.module.css';
+import styles from './index.module.css';
 
 export type RecordTablePaginationProps = {
     onPaginationChange: (page: number, rowsPerPage: number) => void

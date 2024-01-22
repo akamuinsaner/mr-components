@@ -2,7 +2,18 @@ import { TreeSelectOption } from './index';
 
 export const reservedKey = 'ewrewetet43etwefwer23423454'
 
-export const flatOptions = (options: TreeSelectOption[], result = [], parentId: number | string = "") => {
+type commonType<T> = {
+    id: number | string;
+    name: React.ReactNode | string | number;
+    parentId?: number | string;
+    children?: T[]
+}
+
+export const flatOptions = <T extends commonType<T>>(
+    options: T[],
+    result = [],
+    parentId: number | string = ""
+): T[] => {
     options.forEach(o => {
         result.push({ ...o, parentId });
         const hasChildren = o.children && o.children.length;
@@ -11,7 +22,7 @@ export const flatOptions = (options: TreeSelectOption[], result = [], parentId: 
     return result;
 }
 
-const collectChildren = (list: TreeSelectOption[]) => {
+const collectChildren = <T extends commonType<T>>(list: T[]): T[] => {
     list.map(item => {
         const hasChildren = item.children && item.children.length;
         if (hasChildren) {
@@ -22,7 +33,10 @@ const collectChildren = (list: TreeSelectOption[]) => {
     return list;
 }
 
-export const idAllChildrenMap = (list: TreeSelectOption[], result: Map<number | string, TreeSelectOption[]> = new Map()) => {
+export const idAllChildrenMap = <T extends commonType<T>>(
+    list: T[],
+    result: Map<number | string, T[]> = new Map()
+) => {
     list.map(item => {
         const hasChildren = item.children && item.children.length;
         if (hasChildren) {

@@ -22,7 +22,7 @@ import {
     getFixedStyle,
 } from './helper';
 import classNames from 'classnames';
-import styles from '../index.module.css';
+import styles from './index.module.css';
 import Filter from './Filter';
 
 export type RecordTableHeaderCellProps<T> = {

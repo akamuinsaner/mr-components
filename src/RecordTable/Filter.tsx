@@ -15,7 +15,7 @@ import {
     Stack
 } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import styles from '../index.module.css';
+import styles from './index.module.css';
 import {
     RecordTableColumn,
     RecordTableProps,

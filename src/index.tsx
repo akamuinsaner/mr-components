@@ -3,6 +3,7 @@ import TreeSelect from './TreeSelect';
 import Form from './Form';
 import InputNumber from './InputNumber';
 import RecordTable from './RecordTable';
+import Tree from './Tree';
 
 export {
     Form,
@@ -10,4 +11,5 @@ export {
     TreeSelect,
     Cascader,
     RecordTable,
+    Tree,
 }
