@@ -1,16 +1,10 @@
 import React from 'react';
-import Form from './Form';
-import Grid, { GridProps } from '@mui/material/Grid';
+import Grid from '@mui/material/Grid';
 import { FormContext } from './Form';
-import { FormInstanceType } from './useForm';
-
-export type SubmitItemProps = {
-    children: JSX.Element;
-    gridProps?: GridProps
-}
-
-
-export type SubmitItemComponent<T> = React.FunctionComponent<T>
+import {
+    SubmitItemComponent,
+    SubmitItemProps
+} from './types';
 
 const Submit: SubmitItemComponent<SubmitItemProps> = ({
     children,

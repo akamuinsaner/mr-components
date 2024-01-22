@@ -6,26 +6,11 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Chip from '@mui/material/Chip';
 import Tag from '../TreeSelect/Tag';
-import { TreeSelectOption } from '../TreeSelect';
+
 import { flatOptions, idAllChildrenMap } from '../TreeSelect/helper';
 import DropDown from './DropDown';
 import Options from './Options';
-
-export type CascaderOption = TreeSelectOption;
-
-export type CascaderProps = {
-    options: CascaderOption[];
-    multiple?: boolean;
-    checkable?: boolean;
-    popperStyle?: React.CSSProperties;
-    popperClassName?: string;
-    search?: boolean;
-    value?: any;
-    onChange?: (v: any) => void;
-    loadData?: (o: CascaderOption) => Promise<CascaderOption[]>;
-    allowClear?: boolean;
-    maxTagCount?: number | 'responsive';
-}
+import { CascaderProps, CascaderOption } from './types';
 
 const Cascader = ({
     search = false,

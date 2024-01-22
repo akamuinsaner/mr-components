@@ -1,14 +1,6 @@
 import React from 'react';
 import Popper from '@mui/material/Popper';
-import { CascaderProps } from './index';
-
-type Props = {
-    anchorEl: HTMLElement;
-    popperStyle: CascaderProps["popperStyle"];
-    popperClassName: CascaderProps["popperClassName"];
-    children: React.ReactNode;
-    depth: number;
-}
+import { DropDownProps } from './types';
 
 export default ({
     depth,
@@ -16,7 +8,8 @@ export default ({
     popperStyle,
     popperClassName,
     children,
-}: Props) => {
+}: DropDownProps,
+) => {
     const open = !!anchorEl;
     const width = 240;
     const initialStyles = {

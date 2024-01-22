@@ -6,8 +6,6 @@ export type TreeData = {
     name: React.ReactNode | string | number;
     parentId?: number | string;
     children?: TreeData[];
-    disableCheckbox?: boolean;
-    disabled?: boolean;
 }
 
 export type TreeProps = {

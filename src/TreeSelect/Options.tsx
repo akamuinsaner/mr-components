@@ -1,25 +1,9 @@
 import React from 'react';
 import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/ListItem';
-import { TreeSelectProp, TreeSelectOption } from './index';
+import { TreeSelectOption, OptionsProps } from './types';
 import Check from './Check';
 import ExpandIcon from './ExpandIcon';
-
-type Props = {
-    dense: boolean;
-    expandKeys: Array<TreeSelectOption["id"]>;
-    expandAll: boolean;
-    showCheck: boolean;
-    inputValue: string;
-    selected: Array<TreeSelectOption["id"]>;
-    search: TreeSelectProp["search"];
-    flatOptions: TreeSelectOption[];
-    multiple: TreeSelectProp["multiple"];
-    allChildrenMap: Map<number | string, TreeSelectOption[]>;
-    setSelected: (s: Array<TreeSelectOption["id"]>) => void;
-    loadData: TreeSelectProp["loadData"];
-    setFlattedOptions: (f: TreeSelectOption[]) => void;
-}
 
 export default ({
     dense,
@@ -35,7 +19,7 @@ export default ({
     allChildrenMap,
     setFlattedOptions,
     loadData
-}: Props) => {
+}: OptionsProps) => {
     const [loadingId, setLoadingId] = React.useState<string | number>(null);
     const [cascadeOpen, setCascadeOpen] = React.useState<{ [name: string]: boolean }>({});
 

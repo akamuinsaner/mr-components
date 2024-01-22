@@ -1,34 +1,14 @@
 import React from 'react';
-import Stack, { StackProps } from '@mui/material/Stack';
-import Grid, { GridProps } from '@mui/material/Grid';
-import FormItem, { FormItemProps, FormItemInstanceType } from './Item';
-import Submit, { SubmitItemComponent, SubmitItemProps } from './Submit';
-import { useForm, FormInstanceType } from './useForm';
+import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
+import FormItem from './Item';
+import Submit from './Submit';
+import { useForm } from './useForm';
+import {
+    FormComponent,
+    FormProps,
+} from './types';
 
-type FormProps = {
-    fullWidth?: boolean;
-    size?: 'small' | 'medium';
-    disabled?: boolean;
-    initialValues?: { [name: string]: any };
-    children: JSX.Element | JSX.Element[];
-    onValuesChange?: (prev: any, cur: any) => void;
-    onSubmit?: (values: any) => void;
-    onSubmitFail?: (errors: any) => void;
-    form?: FormInstanceType;
-    layout?: 'Stack' | 'Grid';
-    stackProps?: StackProps;
-    gridProps?: {
-        containerProps?: GridProps;
-        itemProps?: GridProps;
-    };
-    name?: string
-}
-
-type FormComponent<T> = React.FunctionComponent<T> & {
-    useForm: () => FormInstanceType;
-    Item: React.FunctionComponent<FormItemProps>;
-    Submit: SubmitItemComponent<SubmitItemProps>
-}
 
 export const FormContext = React.createContext(null);
 

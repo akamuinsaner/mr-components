@@ -2,45 +2,18 @@ import React from 'react';
 import { ruleCheck } from './helpers';
 import { FormContext } from './Form';
 import { TextFieldProps } from '@mui/material';
-import Grid, { GridProps } from '@mui/material/Grid';
-import { FormInstanceType } from './useForm';
-
-export type RuleConfig = {
-    required?: boolean;
-    len?: number;
-    max?: number;
-    min?: number;
-    regex?: RegExp;
-    msg?: string;
-}
-
-
-export type FormItemProps = {
-    name: string;
-    children: JSX.Element | { (props: Partial<TextFieldProps & { onChange: (value: any) => void }>): JSX.Element };
-    rules?: RuleConfig[];
-    checkable?: boolean;
-    multiple?: boolean;
-    gridProps?: GridProps | null;
-}
-
-export type FormItemInstanceType = {
-    element?: HTMLElement;
-    onChange?(v: any): void;
-    getValue?: () => any;
-    setValue?: (v: any) => void;
-    setError?: (error: string) => void;
-    validate?: (cb: (error: string, value: any) => void) => void;
-}
-
-type FormItemComponent<T> = React.FunctionComponent<T>
+import Grid from '@mui/material/Grid';
+import {
+    FormItemComponent,
+    FormItemProps,
+    FormItemInstanceType,
+} from './types';
 
 const valueHelper = (e, checkable) => {
     if (checkable) return e.target.checked;
     if (e?.target && e?.target?.value !== null) return e.target.value;
     return e;
 }
-
 
 
 const FormItem: FormItemComponent<FormItemProps> = ({

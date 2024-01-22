@@ -1,15 +1,6 @@
 import React from 'react';
 import Popper from '@mui/material/Popper';
-import { TreeSelectProp } from './index';
-
-type Props = {
-    anchorEl: HTMLElement;
-    initialWidth: number;
-    placement: TreeSelectProp["placement"];
-    popperStyle: TreeSelectProp["popperStyle"];
-    popperClassName: TreeSelectProp["popperClassName"];
-    children: React.ReactNode
-}
+import { DropDownProps } from './types';
 
 export default ({
     anchorEl,
@@ -18,7 +9,7 @@ export default ({
     popperStyle,
     popperClassName,
     children,
-}: Props) => {
+}: DropDownProps) => {
     if (!initialWidth) return;
     const open = !!anchorEl;
     const initialStyles = {

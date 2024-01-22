@@ -1,25 +1,9 @@
 import React from 'react';
-import { CascaderOption, CascaderProps } from './index';
+import { OptionProps, CascaderOption } from './types';
 import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/ListItem';
 import ExpandIcon from './ExpandIcon';
 import Check from '../TreeSelect/Check';
-
-type Props = {
-    dense: boolean;
-    parentId: CascaderOption["id"];
-    showCheck: boolean;
-    inputValue: string;
-    selected: Array<CascaderOption["id"]>;
-    search: CascaderProps["search"];
-    flatOptions: CascaderOption[];
-    multiple: CascaderProps["multiple"];
-    allChildrenMap: Map<number | string, CascaderOption[]>;
-    setSelected: (s: Array<CascaderOption["id"]>) => void;
-    loadData: CascaderProps["loadData"];
-    setFlattedOptions: (f: CascaderOption[]) => void;
-    openChildren: (id: CascaderOption["id"]) => void;
-}
 
 export default ({
     dense,
@@ -35,7 +19,7 @@ export default ({
     setFlattedOptions,
     loadData,
     openChildren
-}: Props) => {
+}: OptionProps) => {
     const [loadingId, setLoadingId] = React.useState<string | number>(null);
 
     const onSelect = (o: CascaderOption) => {

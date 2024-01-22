@@ -1,14 +1,6 @@
 import React from 'react';
-import { TreeSelectOption } from './index';
+import { CheckProps } from './types';
 import Checkbox from '@mui/material/Checkbox';
-
-type Props = {
-    show: boolean;
-    selected: Array<TreeSelectOption["id"]>;
-    option: TreeSelectOption;
-    allChildrenMap: Map<number | string, TreeSelectOption[]>;
-    setSelected: (s: Array<TreeSelectOption["id"]>) => void;
-}
 
 export default ({
     show,
@@ -16,7 +8,7 @@ export default ({
     selected,
     setSelected,
     allChildrenMap
-}: Props) => {
+}: CheckProps) => {
     if (!show) return null;
 
     const styles = { padding: '0', marginRight: '5px' };

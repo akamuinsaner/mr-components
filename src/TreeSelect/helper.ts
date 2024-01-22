@@ -1,4 +1,4 @@
-import { TreeSelectOption } from './index';
+import { TreeSelectOption } from './types';
 
 export const reservedKey = 'ewrewetet43etwefwer23423454'
 
