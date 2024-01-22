@@ -1,4 +1,4 @@
-import { TreeSelectOption } from './index';
+import { TreeSelectOption } from './types';
 import { ChipProps } from '@mui/material';
 declare const _default: ({ size, option, onDelete, onInit }: {
     size: ChipProps["size"];

@@ -1,6 +1,6 @@
 import React from 'react';
 import Chip from '@mui/material/Chip';
-import { TreeSelectOption } from './index';
+import { TreeSelectOption } from './types';
 import { TextFieldProps, ChipProps } from '@mui/material';
 
 export default ({
