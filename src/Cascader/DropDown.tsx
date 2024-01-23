@@ -1,6 +1,14 @@
 import React from 'react';
 import Popper from '@mui/material/Popper';
-import { DropDownProps } from './types';
+import { CascaderProps } from './index';
+
+export type DropDownProps = {
+    anchorEl: HTMLElement;
+    popperStyle: CascaderProps["popperStyle"];
+    popperClassName: CascaderProps["popperClassName"];
+    children: React.ReactNode;
+    depth: number;
+}
 
 export default ({
     depth,

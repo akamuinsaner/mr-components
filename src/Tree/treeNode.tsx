@@ -6,12 +6,33 @@ import {
     ListItemText,
     Checkbox,
 } from '@mui/material';
-import { TreeNodeProps } from './types';
 import { ArrowRight } from '@mui/icons-material';
 import classNames from 'classnames';
 import styles from './index.module.css';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { TreeData } from './index';
+
+export type TreeNodeProps = {
+    blockNodes?: boolean;
+    activeId: any;
+    checkable?: boolean;
+    checked: boolean;
+    data: TreeData;
+    depth: number;
+    draggable: boolean;
+    indeterminate: boolean;
+    expand: boolean;
+    overId: any;
+    toggleCheck: (node: TreeData, checked: boolean) => void;
+    toggleExpand: (node: TreeData, expand: boolean) => void;
+    selected: boolean;
+    toggleSelect: (node: TreeData, select: boolean) => void;
+    showLine?: boolean;
+    idSiblingsAfterMap: Map<TreeData["id"], TreeData[]>;
+    switchIcon?: React.ReactNode | ((node: TreeData, expand: boolean) => React.ReactNode);
+    parentChain: TreeData["id"][];
+}
 
 const TreeNode = ({
     blockNodes,

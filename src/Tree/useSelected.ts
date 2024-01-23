@@ -1,5 +1,14 @@
 import React from 'react';
-import { TreeData, UseSelectedProps } from './types';
+import { TreeData } from './index';
+import { DataSet } from '../utils/getTreeDataFormatted';
+
+export type UseSelectedProps = {
+    dataSet:  DataSet<TreeData>,
+    defaultSelectedKeys?: Array<number | string>;
+    defaultSelectAll?: boolean;
+    selectedKeys?: Array<number | string>;
+    onSelect?: (selectedKeys: Array<number | string>, selected: boolean, node: TreeData) => void;
+}
 
 export default ({
     dataSet,

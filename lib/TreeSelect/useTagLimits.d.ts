@@ -1,5 +1,9 @@
 import React from 'react';
-import { UseTagLimitsProps } from './types';
+export type UseTagLimitsProps = {
+    maxTagCount?: number | 'responsive';
+    selected: Array<string | number>;
+    inputRef: React.MutableRefObject<any>;
+};
 declare const _default: ({ maxTagCount, selected, inputRef, }: UseTagLimitsProps) => {
     tagLimit: number;
     tagWidths: any[];

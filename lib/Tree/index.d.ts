@@ -1,3 +1,34 @@
-import { TreeProps } from './types';
+import React from 'react';
+import { SxProps } from '@mui/material';
+export type TreeData = {
+    id: number | string;
+    name: React.ReactNode | string | number;
+    parentId?: number | string;
+    children?: TreeData[];
+};
+export type TreeProps = {
+    blockNodes?: boolean;
+    checkable?: boolean;
+    checkedKeys?: Array<number | string>;
+    checkWithRelation?: boolean;
+    className?: string;
+    defaultCheckedKeys?: Array<number | string>;
+    defaultCheckedAll?: boolean;
+    defaultExpandedKeys?: Array<number | string>;
+    defaultExpandAll?: boolean;
+    defaultSelectedKeys?: Array<number | string>;
+    defaultSelectAll?: boolean;
+    draggable?: boolean;
+    expandedKeys?: Array<number | string>;
+    onCheck?: (checkedKeys: Array<number | string>, checked: boolean, node: TreeData) => void;
+    onDrop?: (active: TreeData, over: TreeData) => void;
+    onExpand?: (expandedKeys: Array<number | string>, expanded: boolean, node: TreeData) => void;
+    onSelect?: (selectedKeys: Array<number | string>, selected: boolean, node: TreeData) => void;
+    selectedKeys?: Array<number | string>;
+    showLine?: boolean;
+    switchIcon?: React.ReactNode | ((node: TreeData, expand: boolean) => React.ReactNode);
+    sx?: SxProps;
+    treeData: TreeData[];
+};
 declare const Tree: ({ blockNodes, checkable, checkedKeys, checkWithRelation, className, defaultCheckedKeys, defaultCheckedAll, defaultExpandedKeys, defaultExpandAll, defaultSelectedKeys, defaultSelectAll, draggable, expandedKeys, onCheck, onExpand, onDrop, onSelect, selectedKeys, showLine, switchIcon, sx, treeData }: TreeProps) => import("react/jsx-runtime").JSX.Element;
 export default Tree;

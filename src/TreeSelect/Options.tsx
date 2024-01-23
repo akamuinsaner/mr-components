@@ -1,9 +1,25 @@
 import React from 'react';
 import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/ListItem';
-import { TreeSelectOption, OptionsProps } from './types';
+import { TreeSelectProp, TreeSelectOption } from './index';
 import Check from './Check';
 import ExpandIcon from './ExpandIcon';
+
+export type OptionsProps = {
+    dense: boolean;
+    expandKeys: Array<TreeSelectOption["id"]>;
+    expandAll: boolean;
+    showCheck: boolean;
+    inputValue: string;
+    selected: Array<TreeSelectOption["id"]>;
+    search: TreeSelectProp["search"];
+    flatOptions: TreeSelectOption[];
+    multiple: TreeSelectProp["multiple"];
+    allChildrenMap: Map<number | string, TreeSelectOption[]>;
+    setSelected: (s: Array<TreeSelectOption["id"]>) => void;
+    loadData: TreeSelectProp["loadData"];
+    setFlattedOptions: (f: TreeSelectOption[]) => void;
+}
 
 export default ({
     dense,

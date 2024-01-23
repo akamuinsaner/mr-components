@@ -1,5 +1,12 @@
 import React from 'react';
-import { UseDndProps } from './types';
+import { TreeData } from './index';
+import { DataSet } from '../utils/getTreeDataFormatted';
+
+export type UseDndProps = {
+    dataSet:  DataSet<TreeData>;
+    toggleExpand: (node: TreeData, expand: boolean) => void;
+    onDrop: (active: TreeData, over: TreeData) => void;
+}
 
 export default ({
     dataSet,

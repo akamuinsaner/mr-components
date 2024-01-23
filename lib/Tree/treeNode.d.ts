@@ -1,3 +1,24 @@
-import { TreeNodeProps } from './types';
+import React from 'react';
+import { TreeData } from './index';
+export type TreeNodeProps = {
+    blockNodes?: boolean;
+    activeId: any;
+    checkable?: boolean;
+    checked: boolean;
+    data: TreeData;
+    depth: number;
+    draggable: boolean;
+    indeterminate: boolean;
+    expand: boolean;
+    overId: any;
+    toggleCheck: (node: TreeData, checked: boolean) => void;
+    toggleExpand: (node: TreeData, expand: boolean) => void;
+    selected: boolean;
+    toggleSelect: (node: TreeData, select: boolean) => void;
+    showLine?: boolean;
+    idSiblingsAfterMap: Map<TreeData["id"], TreeData[]>;
+    switchIcon?: React.ReactNode | ((node: TreeData, expand: boolean) => React.ReactNode);
+    parentChain: TreeData["id"][];
+};
 declare const TreeNode: ({ blockNodes, activeId, checkable, indeterminate, checked, data, depth, draggable, expand, overId, toggleCheck, toggleExpand, selected, toggleSelect, showLine, idSiblingsAfterMap, switchIcon, parentChain }: TreeNodeProps) => import("react/jsx-runtime").JSX.Element;
 export default TreeNode;

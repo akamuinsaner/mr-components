@@ -1,7 +1,15 @@
 import React from 'react';
-import { TreeData, UseCheckedProps } from './types';
+import { TreeData } from './index';
+import { DataSet } from '../utils/getTreeDataFormatted';
 
-
+export type UseCheckedProps = {
+    dataSet: DataSet<TreeData>,
+    checkedKeys?: Array<number | string>;
+    checkWithRelation?: boolean;
+    defaultCheckedKeys?: Array<number | string>;
+    defaultCheckedAll?: boolean;
+    onCheck?: (checkedKeys: Array<number | string>, checked: boolean, node: TreeData) => void;
+}
 
 export default ({
     dataSet,

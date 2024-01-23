@@ -1,8 +1,16 @@
 import React from 'react';
-import { ExpandIconProps } from './types';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CircularProgress from '@mui/material/CircularProgress';
+
+export type ExpandIconProps = {
+    showChildren: boolean;
+    hasChildren: boolean;
+    isLoading: boolean;
+    visibility: boolean;
+    toggleOpen: (o: boolean) => void;
+    startLoadData: () => void;
+}
 
 export default ({
     showChildren,

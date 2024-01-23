@@ -1,4 +1,4 @@
-import { RuleConfig } from './types';
+import { RuleConfig } from './Item';
 
 const requireValidate = (name: string, value: any, rule: RuleConfig): string => {
     if ((value === null || value === undefined || value === '') || (Array.isArray(value) && !value.length)) {

@@ -1,6 +1,14 @@
 import React from 'react';
-import { CheckProps } from './types';
+import { TreeSelectOption } from './index';
 import Checkbox from '@mui/material/Checkbox';
+
+export type CheckProps = {
+    show: boolean;
+    selected: Array<TreeSelectOption["id"]>;
+    option: TreeSelectOption;
+    allChildrenMap: Map<number | string, TreeSelectOption[]>;
+    setSelected: (s: Array<TreeSelectOption["id"]>) => void;
+}
 
 export default ({
     show,

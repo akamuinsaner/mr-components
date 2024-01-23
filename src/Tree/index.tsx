@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Stack, SxProps } from '@mui/material';
 import TreeNode from './treeNode';
 import styles from './index.module.css';
 import getTreeDataFormatted, {
@@ -13,11 +13,42 @@ import {
     PointerSensor,
 } from '@dnd-kit/core';
 import classNames from 'classnames';
-import { TreeData, TreeProps } from './types';
 import useChecked from './useChecked';
 import useExpanded from './useExpanded';
 import useSelected from './useSelected';
 import useDnd from './useDnd';
+
+export type TreeData = {
+    id: number | string;
+    name: React.ReactNode | string | number;
+    parentId?: number | string;
+    children?: TreeData[];
+}
+
+export type TreeProps = {
+    blockNodes?: boolean;
+    checkable?: boolean;
+    checkedKeys?: Array<number | string>;
+    checkWithRelation?: boolean;
+    className?: string;
+    defaultCheckedKeys?: Array<number | string>;
+    defaultCheckedAll?: boolean;
+    defaultExpandedKeys?: Array<number | string>;
+    defaultExpandAll?: boolean;
+    defaultSelectedKeys?: Array<number | string>;
+    defaultSelectAll?: boolean;
+    draggable?: boolean;
+    expandedKeys?: Array<number | string>;
+    onCheck?: (checkedKeys: Array<number | string>, checked: boolean, node: TreeData) => void;
+    onDrop?: (active: TreeData, over: TreeData) => void;
+    onExpand?: (expandedKeys: Array<number | string>, expanded: boolean, node: TreeData) => void;
+    onSelect?: (selectedKeys: Array<number | string>, selected: boolean, node: TreeData) => void;
+    selectedKeys?: Array<number | string>;
+    showLine?: boolean;
+    switchIcon?: React.ReactNode | ((node: TreeData, expand: boolean) => React.ReactNode);
+    sx?: SxProps;
+    treeData: TreeData[]
+}
 
 const Tree = ({
     blockNodes,

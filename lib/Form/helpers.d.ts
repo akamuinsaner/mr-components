@@ -1,2 +1,2 @@
-import { RuleConfig } from './types';
+import { RuleConfig } from './Item';
 export declare const ruleCheck: (name: string, value: any, rules: RuleConfig[]) => string;

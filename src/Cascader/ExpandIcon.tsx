@@ -1,7 +1,15 @@
 import React from 'react';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CircularProgress from '@mui/material/CircularProgress';
-import { ExpandIconProps } from './types';
+import { CascaderProps } from './index';
+
+export type ExpandIconProps = {
+    hasChildren: boolean;
+    isLoading: boolean;
+    openChildren: () => void;
+    startLoadData: () => void;
+    loadData: CascaderProps["loadData"];
+}
 
 export default ({
     hasChildren,

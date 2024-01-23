@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { TreeSelectOption } from './types';
+import { TreeSelectOption } from './index';
 export declare const reservedKey = "ewrewetet43etwefwer23423454";
 type commonType<T> = {
     id: number | string;

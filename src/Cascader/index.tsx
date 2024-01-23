@@ -10,7 +10,23 @@ import Tag from '../TreeSelect/Tag';
 import { flatOptions, idAllChildrenMap } from '../TreeSelect/helper';
 import DropDown from './DropDown';
 import Options from './Options';
-import { CascaderProps, CascaderOption } from './types';
+import { TreeSelectOption } from '../TreeSelect';
+
+export type CascaderOption = TreeSelectOption;
+
+export type CascaderProps = {
+    options: CascaderOption[];
+    multiple?: boolean;
+    checkable?: boolean;
+    popperStyle?: React.CSSProperties;
+    popperClassName?: string;
+    search?: boolean;
+    value?: any;
+    onChange?: (v: any) => void;
+    loadData?: (o: CascaderOption) => Promise<CascaderOption[]>;
+    allowClear?: boolean;
+    maxTagCount?: number | 'responsive';
+}
 
 const Cascader = ({
     search = false,
