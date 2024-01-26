@@ -201,3 +201,7 @@ export const getRenderColumns = (columns: RecordTableColumn<any>[]): any => {
         })
     })
 }
+
+export const getRowsFromKeys = (data, keys, rowKey) => {
+    return data.filter((d, index) => keys.includes(getRowKey(d, rowKey, index)));
+}

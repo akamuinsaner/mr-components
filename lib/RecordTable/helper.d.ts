@@ -18,3 +18,4 @@ export declare const getFixedWidth: (columns: RecordTableColumn<any>[], key: any
 export declare const getFixedStyle: (fixed: 'left' | 'right', columns: RecordTableColumn<any>[], key: any, expandFixed: boolean, selectFixed: boolean) => {};
 export declare const getDataColumns: (columns: RecordTableColumn<any>[], result?: any[]) => RecordTableColumn<any>[];
 export declare const getRenderColumns: (columns: RecordTableColumn<any>[]) => any;
+export declare const getRowsFromKeys: (data: any, keys: any, rowKey: any) => any;

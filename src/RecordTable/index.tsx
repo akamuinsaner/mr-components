@@ -2,7 +2,6 @@ import {
     Box,
     TableContainer,
     Table,
-    PaginationProps,
     TableProps,
     TableContainerProps,
     TablePaginationProps,
@@ -14,14 +13,11 @@ import React from 'react';
 import RecordTableHeader from './Header';
 import RecordTableBody from './Body';
 import RecordTableFooter from './Footer';
-import Cols from './Cols';
 import {
-    getRowKey,
     getDataDisplay,
     getContainerSizeByScroll,
     getRenderColumns,
     getDataColumns,
-    getFilteredData,
 } from './helper';
 import classNames from 'classnames';
 import styles from './index.module.css';
@@ -29,6 +25,12 @@ import {
     RecordTableFilters,
     ReactTableFilterModes
 } from './Filter';
+import useExpanded from './useExpanded';
+import useSorted from './useSorted';
+import useSelected from './useSelected';
+import usePagination from './usePagination';
+import useFiltered from './useFiltered';
+import useScroll from './useScroll';
 
 export type RecordTableSortDirections = 'asc' | 'desc';
 
@@ -157,147 +159,41 @@ const RecordTable = <T extends object>({
     filterInfo,
     sx = {},
 }: RecordTableProps<T>) => {
-
     const dataColumns = getDataColumns(columns);
     const renderColumns = getRenderColumns(columns);
-    const [filteredData, setFilteredData] = React.useState<T[]>([]);
     const [displayData, setDisplayData] = React.useState<T[]>([]);
-    const getRowsFromKeys = (keys) => {
-        return displayData.filter((d, index) => keys.includes(getRowKey(d, rowKey, index)));
-    }
 
-    /**********scroll start***********/
-    let scrollTimer: NodeJS.Timeout;
-    const containerRef = React.useRef<HTMLElement>(null);
-    const [scrollingInfo, setScrollingInfo] = React.useState<{
-        scrollTop: boolean;
-        scrollLeft: boolean;
-        scrollRight: boolean;
-    }>({
-        scrollTop: false,
-        scrollLeft: false,
-        scrollRight: false,
-    });
-    const containerScrolling = () => {
-        clearTimeout(scrollTimer);
-        setTimeout(() => {
-            const element = containerRef.current;
-            const { scrollTop, scrollWidth, scrollLeft, clientWidth } = element;
-            setScrollingInfo({
-                scrollTop: scrollTop === 0,
-                scrollLeft: scrollLeft === 0,
-                scrollRight: scrollWidth === scrollLeft + clientWidth,
-            })
-        }, 300);
-    }
-    React.useEffect(() => {
-        containerScrolling();
-        containerRef.current && containerRef.current.addEventListener('scroll', containerScrolling);
-        return () => containerRef.current && containerRef.current.removeEventListener('scroll', containerScrolling);
-    }, []);
-    /**********scroll end***********/
+    const { containerRef, scrollingInfo } = useScroll();
 
-    /**********filter start**********/
-    const [filterParams, setFilterParams]
-        = React.useState<{ [name: string]: Array<string | number> }>(Object.assign({}, filterInfo?.defaultFilterParams));
-    const onFilterChange = (params: { [name: string]: Array<string | number> }) => {
-        onPaginationChange(0, pageParams.rowsPerPage);
-        const newFilterParams = { ...filterParams, ...params };
-        if (!filterInfo?.filterParams) setFilterParams(newFilterParams);
-        if (filterInfo?.onFilterChange) filterInfo.onFilterChange(newFilterParams);
-    }
-    React.useEffect(() => {
-        if (filterInfo?.filterParams) setFilterParams(filterInfo?.filterParams);
-    }, [filterInfo?.filterParams]);
+    const {
+        selectRowKeys,
+        onSelectAll,
+        onSelectChange,
+    } = useSelected<T>({ data: displayData, rowKey, rowSelection });
 
-    React.useEffect(() => {
-        const filteredData = getFilteredData(dataSource, filterParams);
-        setFilteredData(filteredData);
-        setPageParams({ ...pageParams, page: 0, count: filteredData.length });
-    }, [dataSource, filterParams]);
-    /**********filter end**********/
+    const {
+        pageParams,
+        onPaginationChange,
+        setPageParams,
+    } = usePagination<T>({ dataSource, pagination, onSelectAll });
 
-    /********pagination start*******/
-    const defaultPageParams: Partial<TablePaginationProps> = {
-        count: dataSource.length,
-        page: 0,
-        rowsPerPage: pagination === false ? dataSource.length : 10,
-    }
-    const [pageParams, setPageParams]
-        = React.useState<Partial<TablePaginationProps>>(Object.assign({}, defaultPageParams, pagination));
-    const onPaginationChange = (page: number, rowsPerPage: number) => {
-        setPageParams({ ...pageParams, page, rowsPerPage });
-        onSelectAll([], []);
-    }
-    React.useEffect(() => {
-        if (pagination) {
-            const { page, count, rowsPerPage } = pagination;
-            setPageParams({ ...defaultPageParams, page, count, rowsPerPage });
-        }
-    }, [pagination]);
-    /********pagination end*******/
-
-    /******* sort start *******/
-    const defaultSortParams: RecordTableSortParams = { orderBy: '', order: null };
-    const [sortParams, setSortParams]
-        = React.useState<RecordTableSortParams>(Object.assign({}, defaultSortParams, sortInfo?.defaultSortParams));
-    const onSortChange = (orderBy: string, order: RecordTableSortDirections) => {
-        const sortParams = { order, orderBy };
-        onPaginationChange(0, pageParams.rowsPerPage);
-        onSelectAll([], []);
-        if (!sortInfo?.sortParams) setSortParams(sortParams);
-        if (sortInfo?.onSortChange) sortInfo.onSortChange(sortParams);
-    }
-    React.useEffect(() => {
-        if (sortInfo?.sortParams) setSortParams(sortInfo?.sortParams);
-    }, [sortInfo?.sortParams]);
-    /******* sort end *******/
+    const {
+        filteredData,
+        filterParams,
+        onFilterChange
+    } = useFiltered<T>({ dataSource, pageParams, filterInfo, setPageParams, onPaginationChange });
 
 
-    /********selection start*********/
-    const [selectRowKeys, setSelectRowKeys]
-        = React.useState<Array<number | string>>(rowSelection?.defaultSelectedRowKeys || []);
+    const {
+        sortParams,
+        onSortChange,
+    } = useSorted<T>({ sortInfo, pageParams, onPaginationChange });
 
-    const onSelectChange = (keys: Array<number | string>, index: number, select?: boolean, row?: T) => {
-        if (!rowSelection?.selectedRowKeys) setSelectRowKeys(keys);
-        if (rowSelection?.onChange) rowSelection?.onChange(keys, getRowsFromKeys(keys));
-        if (rowSelection?.onSelect && row) rowSelection?.onSelect(row, select);
-    }
+    const {
+        expandedRowKeys,
+        onExpandChange,
+    } = useExpanded<T>({ data: displayData, rowKey, expandable });
 
-    const onSelectAll = (keys: Array<number | string>, rows: T[]) => {
-        if (!rowSelection?.selectedRowKeys) setSelectRowKeys(keys);
-        if (rowSelection?.onChange) rowSelection?.onChange(keys, rows);
-    }
-
-    React.useEffect(() => {
-        if (rowSelection?.selectedRowKeys) setSelectRowKeys(rowSelection?.selectedRowKeys);
-    }, [rowSelection?.selectedRowKeys]);
-    /********selection end*********/
-
-
-
-    /*******expandable start*******/
-    const getDefaultExpanedRowKeys = () => {
-        if (expandable?.defaultExpandedRowKeys) return expandable?.defaultExpandedRowKeys;
-        else if (expandable?.defaultExpandAllRows) return displayData.map((d, index) => getRowKey(d, rowKey, index));
-        else return [];
-    }
-    const [expandedRowKeys, setExpandedRowKeys]
-        = React.useState<Array<number | string>>(getDefaultExpanedRowKeys());
-
-    const onExpandChange = (rowKey, expand, record) => {
-        let keys = [];
-        if (expand) keys = [...expandedRowKeys, rowKey];
-        else keys = expandedRowKeys.filter(k => k !== rowKey);
-        if (expandable?.onExpandedRowsChange) expandable?.onExpandedRowsChange(keys, getRowsFromKeys(keys));
-        if (!expandable?.expandedRowKeys) setExpandedRowKeys(keys);
-        if (expandable?.onExpand && expand) expandable?.onExpand(record);
-    }
-
-    React.useEffect(() => {
-        if (expandable?.expandedRowKeys) setExpandedRowKeys(expandable?.expandedRowKeys);
-    }, [expandable?.expandedRowKeys]);
-    /*******expandable end*******/
 
     React.useEffect(() => {
         const newData = getDataDisplay(filteredData, pagination, pageParams, sortParams);
@@ -308,40 +204,53 @@ const RecordTable = <T extends object>({
         sx = Object.assign({}, sx, { width: `${scroll?.x}px` });
     }
     const isSticky = sticky || !!scroll?.y;
+
+    const tableWrapperClassName = classNames({
+        [styles["mr-table-wrpper"]]: true,
+        [styles["mr-table-wrpper-scroll"]]: isSticky,
+    });
+
+    const tableContainerClassName = classNames({
+        [styles["mr-table-container"]]: true,
+        [styles["mr-table-container-scroll-x"]]: !!scroll?.x,
+        [styles["mr-table-container-scroll-y"]]: isSticky,
+        [styles["mr-table-container-scroll-top"]]: !scrollingInfo.scrollTop
+    });
+
+    const tableClassName = classNames(className, {
+        [styles["mr-table"]]: true,
+        [styles["mr-table-bordered"]]: bordered,
+        [styles["mr-table-fixed"]]: !!scroll?.x
+    })
+
+    const loadingClassName = classNames(styles["mr-table-loading-mask"], {
+        [styles["hide"]]: !loading,
+    });
+
+    const contextValue = {
+        expandable,
+        rowSelection,
+        sortInfo,
+        filterInfo,
+        dropable,
+        scroll,
+        rowClassName,  
+    }
+
     return (
-        <MRTableContext.Provider value={{
-            expandable,
-            rowSelection,
-            sortInfo,
-            filterInfo,
-            dropable,
-            scroll,
-            rowClassName,
-        }}>
-            <Box className={classNames({
-                [styles["mr-table-wrpper"]]: true,
-                [styles["mr-table-wrpper-scroll"]]: isSticky,
-            })}>
+        <MRTableContext.Provider value={contextValue}>
+            <Box className={tableWrapperClassName}>
                 <TableContainer
                     ref={containerRef}
                     component={component}
-                    className={classNames({
-                        [styles["mr-table-container"]]: true,
-                        [styles["mr-table-container-scroll-x"]]: !!scroll?.x,
-                        [styles["mr-table-container-scroll-y"]]: isSticky,
-                        [styles["mr-table-container-scroll-top"]]: !scrollingInfo.scrollTop
-                    })}
+                    className={tableContainerClassName}
                     sx={getContainerSizeByScroll(scroll)}
                 >
                     <Table
                         size={size}
                         stickyHeader={sticky || !!scroll?.y}
                         sx={sx}
-                        className={classNames(className, {
-                            [styles["mr-table"]]: true,
-                            [styles["mr-table-bordered"]]: bordered,
-                            [styles["mr-table-fixed"]]: !!scroll?.x
-                        })}
+                        className={tableClassName}
                     >
                         <RecordTableHeader<T>
                             columns={dataColumns}
@@ -377,9 +286,7 @@ const RecordTable = <T extends object>({
                     pagination={pagination}
                     onPaginationChange={onPaginationChange}
                 />
-                <Box className={classNames(styles["mr-table-loading-mask"], {
-                    [styles["hide"]]: !loading,
-                })}>
+                <Box className={loadingClassName}>
                     <CircularProgress {...(loading || {})} />
                 </Box>
             </Box>
