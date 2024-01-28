@@ -19,6 +19,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "homepage": "http://mr-component.site/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/akamuinsaner/mr-components.git"
