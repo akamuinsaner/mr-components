@@ -29,6 +29,7 @@ export type TreeSelectProp = TextFieldProps & {
     multiple?: boolean;
     placement?: PopperPlacementType;
     checkable?: boolean;
+    checkWithRelation?: boolean;
     defaultExpandAll?: boolean;
     defaultExpandedKeys?: Array<TreeSelectOption["id"]>;
     expandedKeys?: Array<number | string>;
@@ -49,6 +50,7 @@ const TreeSelect = ({
     multiple = false,
     placement = "bottom-start",
     checkable = false,
+    checkWithRelation,
     defaultExpandAll = false,
     defaultExpandedKeys,
     popperStyle = {},
@@ -66,7 +68,12 @@ const TreeSelect = ({
     const eleRef = React.useRef<HTMLElement>(null);
     const initializedRef = React.useRef<boolean>(false);
     const [dataSet, setDataSet] = React.useState<DataSet<TreeSelectOption>>(getTreeDataFormatted(options));
-    const { flattedData, idChildrenIdMap } = dataSet;
+    const {
+        flattedData,
+        idChildrenMap,
+        idChildrenIdMap,
+        idTreeNodeMap,
+    } = dataSet;
     React.useEffect(() => {
         if (!initializedRef.current) initializedRef.current = true;
         else setDataSet(getTreeDataFormatted(options));
@@ -75,12 +82,8 @@ const TreeSelect = ({
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
     const [hovering, setHovering] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<Array<string | number>>(Array.isArray(value) ? value : (value ? [value] : []));
-    const [flattedOptions, setFlattedOptions] = React.useState<TreeSelectOption[]>(flatOptions(options));
-    const [allChildrenMap, setAllChildrenMap] = React.useState<Map<number | string, TreeSelectOption[]>>(new Map())
+
     const [inputValue, setInputValue] = React.useState<string>('');
-    React.useEffect(() => {
-        setAllChildrenMap(idAllChildrenMap(options))
-    }, [flattedOptions]);
 
     const { expandKeys, toggleExpand } = useExpanded({
         flattedData,
@@ -89,7 +92,7 @@ const TreeSelect = ({
         expandedKeys,
         onExpand,
     })
-    console.log()
+
     const {
         tagLimit, tagWidths, setTagWidths
     } = useTagLimits({
@@ -129,7 +132,7 @@ const TreeSelect = ({
         const rest = value.slice(tagLimit);
         const size = inputProps.size;
         return rendered.map((id, index) => {
-            const o = flattedOptions.find(o => o.id === id);
+            const o = idTreeNodeMap.get(id);
             return (<Tag
                 size={size}
                 onDelete={(id) => {
@@ -155,7 +158,7 @@ const TreeSelect = ({
         if (isFocused && search) {
             return inputValue;
         }
-        const o = flattedOptions.find(o => o.id === selected[0]);
+        const o = idTreeNodeMap.get(selected[0]);
         return o?.name || '';
     };
 
@@ -225,13 +228,12 @@ const TreeSelect = ({
                     multiple={multiple}
                     selected={selected}
                     inputValue={inputValue}
-                    flatOptions={flattedOptions}
                     setSelected={setSelected}
-                    allChildrenMap={allChildrenMap}
-                    setFlattedOptions={setFlattedOptions}
                     loadData={loadData}
                     expandKeys={expandKeys}
                     toggleExpand={toggleExpand}
+                    dataSet={dataSet}
+                    checkWithRelation={checkWithRelation}
                 />
             </DropDown>
         </>

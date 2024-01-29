@@ -12,6 +12,7 @@ export type TreeSelectProp = TextFieldProps & {
     multiple?: boolean;
     placement?: PopperPlacementType;
     checkable?: boolean;
+    checkWithRelation?: boolean;
     defaultExpandAll?: boolean;
     defaultExpandedKeys?: Array<TreeSelectOption["id"]>;
     expandedKeys?: Array<number | string>;
@@ -25,5 +26,5 @@ export type TreeSelectProp = TextFieldProps & {
     allowClear?: boolean;
     maxTagCount?: number | 'responsive';
 };
-declare const TreeSelect: ({ search, options, multiple, placement, checkable, defaultExpandAll, defaultExpandedKeys, popperStyle, popperClassName, value, expandedKeys, onChange, onExpand, loadData, allowClear, maxTagCount, ...inputProps }: TreeSelectProp) => import("react/jsx-runtime").JSX.Element;
+declare const TreeSelect: ({ search, options, multiple, placement, checkable, checkWithRelation, defaultExpandAll, defaultExpandedKeys, popperStyle, popperClassName, value, expandedKeys, onChange, onExpand, loadData, allowClear, maxTagCount, ...inputProps }: TreeSelectProp) => import("react/jsx-runtime").JSX.Element;
 export default TreeSelect;
