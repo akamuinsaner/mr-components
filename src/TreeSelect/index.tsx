@@ -11,6 +11,11 @@ import Options from './Options';
 import useTagLimits from './useTagLimits';
 import { PopperPlacementType } from '@mui/material/Popper';
 import { TextFieldProps } from '@mui/material';
+import getTreeDataFormatted, {
+    DataSet,
+    RESERVED_KEY
+} from '../utils/getTreeDataFormatted';
+import useExpanded from './useExpanded';
 
 export type TreeSelectOption = {
     id: number | string;
@@ -24,13 +29,15 @@ export type TreeSelectProp = TextFieldProps & {
     multiple?: boolean;
     placement?: PopperPlacementType;
     checkable?: boolean;
-    expandAll?: boolean;
-    expandKeys?: Array<number | string>;
+    defaultExpandAll?: boolean;
+    defaultExpandedKeys?: Array<TreeSelectOption["id"]>;
+    expandedKeys?: Array<number | string>;
     popperStyle?: React.CSSProperties;
     popperClassName?: string;
     search?: boolean;
     value?: any;
     onChange?: (v: any) => void;
+    onExpand?: (expandedKeys: Array<number | string>) => void;
     loadData?: (o: TreeSelectOption) => Promise<TreeSelectOption[]>;
     allowClear?: boolean;
     maxTagCount?: number | 'responsive';
@@ -42,12 +49,14 @@ const TreeSelect = ({
     multiple = false,
     placement = "bottom-start",
     checkable = false,
-    expandAll = false,
+    defaultExpandAll = false,
+    defaultExpandedKeys,
     popperStyle = {},
     popperClassName,
     value,
-    expandKeys,
+    expandedKeys,
     onChange,
+    onExpand,
     loadData,
     allowClear = false,
     maxTagCount = 0,
@@ -55,6 +64,13 @@ const TreeSelect = ({
 }: TreeSelectProp) => {
     const inputRef = React.useRef(null);
     const eleRef = React.useRef<HTMLElement>(null);
+    const initializedRef = React.useRef<boolean>(false);
+    const [dataSet, setDataSet] = React.useState<DataSet<TreeSelectOption>>(getTreeDataFormatted(options));
+    const { flattedData, idChildrenIdMap } = dataSet;
+    React.useEffect(() => {
+        if (!initializedRef.current) initializedRef.current = true;
+        else setDataSet(getTreeDataFormatted(options));
+    }, [options]);
     const [initialized, setInitialized] = React.useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
     const [hovering, setHovering] = React.useState<boolean>(false);
@@ -66,6 +82,14 @@ const TreeSelect = ({
         setAllChildrenMap(idAllChildrenMap(options))
     }, [flattedOptions]);
 
+    const { expandKeys, toggleExpand } = useExpanded({
+        flattedData,
+        defaultExpandAll,
+        defaultExpandedKeys,
+        expandedKeys,
+        onExpand,
+    })
+    console.log()
     const {
         tagLimit, tagWidths, setTagWidths
     } = useTagLimits({
@@ -196,7 +220,6 @@ const TreeSelect = ({
             >
                 <Options
                     dense={inputProps.size === 'small'}
-                    expandAll={expandAll}
                     showCheck={multiple && checkable}
                     search={search}
                     multiple={multiple}
@@ -208,6 +231,7 @@ const TreeSelect = ({
                     setFlattedOptions={setFlattedOptions}
                     loadData={loadData}
                     expandKeys={expandKeys}
+                    toggleExpand={toggleExpand}
                 />
             </DropDown>
         </>

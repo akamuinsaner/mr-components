@@ -8,7 +8,7 @@ export type ExpandIconProps = {
     hasChildren: boolean;
     isLoading: boolean;
     visibility: boolean;
-    toggleOpen: (o: boolean) => void;
+    onExpandChange: () => void;
     startLoadData: () => void;
 }
 
@@ -17,7 +17,7 @@ export default ({
     hasChildren,
     isLoading,
     visibility,
-    toggleOpen,
+    onExpandChange,
     startLoadData,
 }: ExpandIconProps) => {
     if (showChildren) {
@@ -26,7 +26,7 @@ export default ({
             onClick={(e) => {
                 e.stopPropagation()
                 if (!visibility) return;
-                toggleOpen(false);
+                onExpandChange();
             }}
         />
     }
@@ -42,7 +42,7 @@ export default ({
         onClick={(e) => {
             e.stopPropagation()
             if (!visibility) return;
-            if (hasChildren) toggleOpen(true);
+            if (hasChildren) onExpandChange();
             startLoadData()
         }}
     />

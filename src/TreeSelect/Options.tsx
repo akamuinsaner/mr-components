@@ -7,8 +7,6 @@ import ExpandIcon from './ExpandIcon';
 
 export type OptionsProps = {
     dense: boolean;
-    expandKeys: Array<TreeSelectOption["id"]>;
-    expandAll: boolean;
     showCheck: boolean;
     inputValue: string;
     selected: Array<TreeSelectOption["id"]>;
@@ -19,12 +17,12 @@ export type OptionsProps = {
     setSelected: (s: Array<TreeSelectOption["id"]>) => void;
     loadData: TreeSelectProp["loadData"];
     setFlattedOptions: (f: TreeSelectOption[]) => void;
+    expandKeys: Array<TreeSelectOption["id"]>;
+    toggleExpand: (id: TreeSelectOption["id"]) => void;
 }
 
 export default ({
     dense,
-    expandKeys,
-    expandAll,
     showCheck,
     search,
     multiple,
@@ -34,22 +32,11 @@ export default ({
     setSelected,
     allChildrenMap,
     setFlattedOptions,
-    loadData
+    loadData,
+    expandKeys,
+    toggleExpand
 }: OptionsProps) => {
     const [loadingId, setLoadingId] = React.useState<string | number>(null);
-    const [cascadeOpen, setCascadeOpen] = React.useState<{ [name: string]: boolean }>({});
-
-    React.useEffect(() => {
-        if (expandAll) {
-            setCascadeOpen(flatOptions.reduce((pre, cur) => ({ ...pre, [cur.id]: true }), {}));
-        } else if (expandKeys && expandKeys.length) {
-            setCascadeOpen(flatOptions.reduce((pre, cur) => {
-                if (!expandKeys.includes(cur.id)) return pre;
-                return { ...pre, [cur.id]: true }
-            }, {}));
-        }
-    }, [expandAll, expandKeys, flatOptions]);
-
 
     const onSelect = (o: TreeSelectOption) => {
         if (multiple) {
@@ -63,10 +50,6 @@ export default ({
         }
     };
 
-    const toggleOpen = (id, open) => {
-        setCascadeOpen({ ...cascadeOpen, [id]: open });
-    }
-
     const startLoadData = (option) => {
         if (!loadData) return;
         setLoadingId(option.id)
@@ -74,7 +57,7 @@ export default ({
             setFlattedOptions(flatOptions
                 .map(item => (item.id === option.id ? { ...item, children: data } : item))
                 .concat(data.map(item => ({ ...item, parentId: option.id }))))
-            toggleOpen(option.id, true)
+            toggleExpand(option.id);
         }).finally(() => {
             setLoadingId(null)
         })
@@ -83,10 +66,10 @@ export default ({
     const renderOptionItem = (option, depth, children) => {
         const itemSelected = selected.includes(option.id);
         const hasChildren = children && children.length;
-        const showChildren = cascadeOpen[option.id];
+        const showChildren = expandKeys.includes(option.id);
         const isLoading = loadingId === option.id;
         const visibility = hasChildren || !!loadData;
-
+        const onExpandChange = () => toggleExpand(option.id);
         return (
             <ListItem
                 key={option.id}
@@ -106,7 +89,7 @@ export default ({
                     showChildren={showChildren}
                     isLoading={isLoading}
                     visibility={visibility}
-                    toggleOpen={open => toggleOpen(option.id, open)}
+                    onExpandChange={onExpandChange}
                     startLoadData={() => startLoadData(option)}
                 />
                 <Check
@@ -140,7 +123,7 @@ export default ({
         return [...options.map(o => {
             const children = flatOptions.filter(item => item.parentId === o.id);
             const hasChildren = children && children.length;
-            const showChildren = cascadeOpen[o.id]
+            const showChildren = expandKeys.includes(o.id)
             let renders: any = [renderOptionItem(o, depth, children)];
             if (showChildren && hasChildren) renders = [...renders, ...renderOptions(o.id, depth + 1)];
             return renders;

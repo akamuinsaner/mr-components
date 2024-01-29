@@ -3,8 +3,8 @@ export type ExpandIconProps = {
     hasChildren: boolean;
     isLoading: boolean;
     visibility: boolean;
-    toggleOpen: (o: boolean) => void;
+    onExpandChange: () => void;
     startLoadData: () => void;
 };
-declare const _default: ({ showChildren, hasChildren, isLoading, visibility, toggleOpen, startLoadData, }: ExpandIconProps) => import("react/jsx-runtime").JSX.Element;
+declare const _default: ({ showChildren, hasChildren, isLoading, visibility, onExpandChange, startLoadData, }: ExpandIconProps) => import("react/jsx-runtime").JSX.Element;
 export default _default;

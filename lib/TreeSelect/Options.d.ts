@@ -1,8 +1,6 @@
 import { TreeSelectProp, TreeSelectOption } from './index';
 export type OptionsProps = {
     dense: boolean;
-    expandKeys: Array<TreeSelectOption["id"]>;
-    expandAll: boolean;
     showCheck: boolean;
     inputValue: string;
     selected: Array<TreeSelectOption["id"]>;
@@ -13,6 +11,8 @@ export type OptionsProps = {
     setSelected: (s: Array<TreeSelectOption["id"]>) => void;
     loadData: TreeSelectProp["loadData"];
     setFlattedOptions: (f: TreeSelectOption[]) => void;
+    expandKeys: Array<TreeSelectOption["id"]>;
+    toggleExpand: (id: TreeSelectOption["id"]) => void;
 };
-declare const _default: ({ dense, expandKeys, expandAll, showCheck, search, multiple, selected, inputValue, flatOptions, setSelected, allChildrenMap, setFlattedOptions, loadData }: OptionsProps) => any;
+declare const _default: ({ dense, showCheck, search, multiple, selected, inputValue, flatOptions, setSelected, allChildrenMap, setFlattedOptions, loadData, expandKeys, toggleExpand }: OptionsProps) => any;
 export default _default;
