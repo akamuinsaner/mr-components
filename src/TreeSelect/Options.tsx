@@ -19,6 +19,8 @@ export type OptionsProps = {
     toggleExpand: (id: TreeSelectOption["id"]) => void;
     dataSet: DataSet<TreeSelectOption>;
     checkWithRelation: boolean;
+    loadingId: TreeSelectOption["id"]
+    startLoadData: (node: TreeSelectOption) => void;
 }
 
 export default ({
@@ -33,9 +35,11 @@ export default ({
     expandKeys,
     toggleExpand,
     dataSet,
-    checkWithRelation
+    checkWithRelation,
+    loadingId,
+    startLoadData
 }: OptionsProps) => {
-    const [loadingId, setLoadingId] = React.useState<string | number>(null);
+
     const {
         flattedData,
         idChildrenMap,
@@ -66,15 +70,7 @@ export default ({
         }
     };
 
-    const startLoadData = (option) => {
-        if (!loadData) return;
-        setLoadingId(option.id)
-        loadData(option).then(data => {
-            toggleExpand(option.id);
-        }).finally(() => {
-            setLoadingId(null)
-        })
-    }
+
 
     const renderChildren = (
         id: number | string,

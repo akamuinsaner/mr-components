@@ -13,6 +13,8 @@ export type OptionsProps = {
     toggleExpand: (id: TreeSelectOption["id"]) => void;
     dataSet: DataSet<TreeSelectOption>;
     checkWithRelation: boolean;
+    loadingId: TreeSelectOption["id"];
+    startLoadData: (node: TreeSelectOption) => void;
 };
-declare const _default: ({ dense, showCheck, search, multiple, selected, inputValue, setSelected, loadData, expandKeys, toggleExpand, dataSet, checkWithRelation }: OptionsProps) => import("react/jsx-runtime").JSX.Element;
+declare const _default: ({ dense, showCheck, search, multiple, selected, inputValue, setSelected, loadData, expandKeys, toggleExpand, dataSet, checkWithRelation, loadingId, startLoadData }: OptionsProps) => import("react/jsx-runtime").JSX.Element;
 export default _default;

@@ -78,10 +78,15 @@ const TreeSelect = ({
         if (!initializedRef.current) initializedRef.current = true;
         else setDataSet(getTreeDataFormatted(options));
     }, [options]);
+    const [selected, setSelected] = React.useState<Array<string | number>>(Array.isArray(value) ? value : (value ? [value] : []));
     const [initialized, setInitialized] = React.useState<boolean>(false);
+    React.useEffect(() => {
+        if (initialized) onChange && onChange(multiple ? selected : selected[0]);
+        else setInitialized(true)
+    }, [selected]);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
     const [hovering, setHovering] = React.useState<boolean>(false);
-    const [selected, setSelected] = React.useState<Array<string | number>>(Array.isArray(value) ? value : (value ? [value] : []));
+    const [loadingId, setLoadingId] = React.useState<string | number>(null);
 
     const [inputValue, setInputValue] = React.useState<string>('');
 
@@ -114,12 +119,15 @@ const TreeSelect = ({
         document.removeEventListener('click', closeOptions);
     };
 
-    React.useEffect(() => {
-        if (initialized) onChange && onChange(multiple ? selected : selected[0]);
-        else setInitialized(true)
-    }, [selected]);
-
-
+    const startLoadData = (option) => {
+        if (!loadData) return;
+        setLoadingId(option.id)
+        loadData(option).then(data => {
+            toggleExpand(option.id);
+        }).finally(() => {
+            setLoadingId(null)
+        })
+    }
 
     React.useEffect(() => {
         if (anchorEl) setTimeout(() => {
@@ -234,6 +242,8 @@ const TreeSelect = ({
                     toggleExpand={toggleExpand}
                     dataSet={dataSet}
                     checkWithRelation={checkWithRelation}
+                    loadingId={loadingId}
+                    startLoadData={startLoadData}
                 />
             </DropDown>
         </>

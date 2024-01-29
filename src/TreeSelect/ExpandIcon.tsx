@@ -43,7 +43,7 @@ export default ({
             e.stopPropagation()
             if (!visibility) return;
             if (hasChildren) onExpandChange();
-            startLoadData()
+            else startLoadData();
         }}
     />
 }
