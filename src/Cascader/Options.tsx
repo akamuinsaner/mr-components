@@ -4,68 +4,51 @@ import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/ListItem';
 import ExpandIcon from './ExpandIcon';
 import Check from '../TreeSelect/Check';
+import { RESERVED_KEY, DataSet } from '../utils/getTreeDataFormatted';
 
 export type OptionProps = {
     dense: boolean;
     parentId: CascaderOption["id"];
     showCheck: boolean;
-    inputValue: string;
     selected: Array<CascaderOption["id"]>;
-    search: CascaderProps["search"];
-    flatOptions: CascaderOption[];
     multiple: CascaderProps["multiple"];
-    allChildrenMap: Map<number | string, CascaderOption[]>;
-    setSelected: (s: Array<CascaderOption["id"]>) => void;
     loadData: CascaderProps["loadData"];
-    setFlattedOptions: (f: CascaderOption[]) => void;
-    openChildren: (id: CascaderOption["id"]) => void;
+    openChildren: (id: CascaderOption["id"], depth: number) => void;
+    dataSet: DataSet<CascaderOption>;
+    checkWithRelation: boolean;
+    toggleCheck: (node: CascaderOption, checked: boolean) => void;
+    searchData: CascaderOption[];
+    onSelect: (o: CascaderOption) => void;
+    startLoadData: (node: CascaderOption, depth: number) => void;
+    depth: number;
+    loadingId: CascaderOption["id"];
 }
 
 export default ({
     dense,
     parentId,
     showCheck,
-    search,
     multiple,
     selected,
-    inputValue,
-    flatOptions,
-    setSelected,
-    allChildrenMap,
-    setFlattedOptions,
     loadData,
-    openChildren
+    openChildren,
+    dataSet,
+    checkWithRelation,
+    toggleCheck,
+    searchData,
+    onSelect,
+    startLoadData,
+    depth,
+    loadingId
 }: OptionProps) => {
-    const [loadingId, setLoadingId] = React.useState<string | number>(null);
 
-    const onSelect = (o: CascaderOption) => {
-        if (multiple) {
-            if (selected.includes(o.id)) {
-                setSelected(selected.filter(s => s !== o.id));
-            } else {
-                setSelected([...selected, o.id]);
-            }
-        } else {
-            setSelected([o.id]);
-        }
-    };
-
-
-    const startLoadData = (option) => {
-        if (!loadData) return;
-        setLoadingId(option.id)
-        loadData(option).then(data => {
-            setFlattedOptions(flatOptions
-                .map(item => (item.id === option.id ? { ...item, children: data } : item))
-                .concat(data.map(item => ({ ...item, parentId: option.id }))))
-            openChildren(option.id);
-        }).finally(() => {
-            setLoadingId(null)
-        })
-    }
+    const {
+        idChildrenIdMap,
+        parentChainMap
+    } = dataSet;
 
     const renderOptionItem = (option) => {
-        const hasChildren = !!flatOptions.find(o => o.parentId === option.id);
+        const hasChildren = !!(option.children && option.children.length);
         const itemSelected = selected.includes(option.id);
         const isLoading = loadingId === option.id;
 
@@ -84,8 +67,8 @@ export default ({
                     loadData={loadData}
                     hasChildren={hasChildren}
                     isLoading={isLoading}
-                    openChildren={() => openChildren(option.id)}
-                    startLoadData={() => startLoadData(option)}
+                    openChildren={() => openChildren(option.id, depth + 1)}
+                    startLoadData={() => startLoadData(option, depth + 1)}
                 />}
                 onClick={(e) => {
                     multiple && e.stopPropagation();
@@ -96,31 +79,19 @@ export default ({
                     option={option}
                     show={showCheck}
                     selected={selected}
-                    setSelected={setSelected}
-                    allChildrenMap={allChildrenMap}
+                    toggleCheck={toggleCheck}
+                    parentChainMap={parentChainMap}
+                    idChildrenIdMap={idChildrenIdMap}
+                    checkWithRelation={checkWithRelation}
                 />
                 <Typography>{option.name}</Typography>
             </ListItem>
         )
     }
 
-    const filterOptionsByInput = (options: CascaderOption[]) => {
-        let filteredIds = [];
-        for (let [key, list] of allChildrenMap.entries()) {
-            const filteredByInput = list
-                .filter(l => (`${l.name}`)
-                    .indexOf(inputValue) > -1);
-            if (!!filteredByInput.length) filteredIds.push(key);
-        }
-        const filterCondition: (o: CascaderOption) => boolean
-            = o => filteredIds.includes(o.id) || `${o.name}`.indexOf(inputValue) > -1;
-        return options.filter(filterCondition);
-    }
-
     const renderOptions = () => {
-        let options = flatOptions.filter(o => o.parentId === parentId);
-        if (search && inputValue) options = filterOptionsByInput(options);
-        return options.map(o => renderOptionItem(o));
+        let currentLevelNodes = searchData.filter(o => o.parentId === parentId);
+        return currentLevelNodes.map(o => renderOptionItem(o));
     };
     return renderOptions() as any;
 }

@@ -16,5 +16,5 @@ export type OptionsProps = {
     onSelect: (o: TreeSelectOption) => void;
     toggleCheck: (node: TreeSelectOption, checked: boolean) => void;
 };
-declare const _default: ({ dense, showCheck, multiple, selected, loadData, expandKeys, toggleExpand, dataSet, checkWithRelation, loadingId, startLoadData, searchData, onSelect, toggleCheck }: OptionsProps) => import("react/jsx-runtime").JSX.Element;
+declare const _default: ({ dense, showCheck, multiple, selected, loadData, expandKeys, toggleExpand, dataSet, checkWithRelation, loadingId, startLoadData, searchData, onSelect, toggleCheck, }: OptionsProps) => import("react/jsx-runtime").JSX.Element;
 export default _default;

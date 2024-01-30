@@ -37,7 +37,7 @@ export default ({
     startLoadData,
     searchData,
     onSelect,
-    toggleCheck
+    toggleCheck,
 }: OptionsProps) => {
 
     const {

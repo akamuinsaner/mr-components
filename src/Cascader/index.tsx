@@ -6,12 +6,19 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Chip from '@mui/material/Chip';
 import Tag from '../TreeSelect/Tag';
-
-import { flatOptions, idAllChildrenMap } from '../TreeSelect/helper';
+import getTreeDataFormatted, {
+    DataSet,
+    RESERVED_KEY,
+} from '../utils/getTreeDataFormatted';
 import DropDown from './DropDown';
 import Options from './Options';
 import { TreeSelectOption } from '../TreeSelect';
 import useTagLimits from './useTagLimits';
+import useAnchor from './useAnchor';
+import useSearch from './useSearch';
+import useValue from './useValue';
+import useLoadData from './useLoadData';
+import useOpen from './useOpen';
 
 export type CascaderOption = TreeSelectOption;
 
@@ -19,12 +26,13 @@ export type CascaderProps = {
     options: CascaderOption[];
     multiple?: boolean;
     checkable?: boolean;
+    checkWithRelation?: boolean;
     popperStyle?: React.CSSProperties;
     popperClassName?: string;
     search?: boolean;
     value?: any;
     onChange?: (v: any) => void;
-    loadData?: (o: CascaderOption) => Promise<CascaderOption[]>;
+    loadData?: (o: CascaderOption) => any;
     allowClear?: boolean;
     maxTagCount?: number | 'responsive';
 }
@@ -34,6 +42,7 @@ const Cascader = ({
     options,
     multiple = false,
     checkable = false,
+    checkWithRelation,
     popperStyle = {},
     popperClassName,
     value,
@@ -43,46 +52,46 @@ const Cascader = ({
     maxTagCount = 0,
     ...inputProps
 }: TextFieldProps & CascaderProps) => {
-    const inputRef = React.useRef(null);
-    const eleRef = React.useRef<HTMLElement>(null);
-    const [initialized, setInitialized] = React.useState<boolean>(false);
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
-    const [hovering, setHovering] = React.useState<boolean>(false);
-    const [selected, setSelected] = React.useState<CascaderOption["id"][]>(Array.isArray(value) ? value : (value ? [value] : []));
-    const [inputValue, setInputValue] = React.useState<string>('');
-    const [flattedOptions, setFlattedOptions] = React.useState<CascaderOption[]>(flatOptions(options));
-    const [allChildrenMap, setAllChildrenMap] = React.useState<Map<CascaderOption["id"], CascaderOption[]>>(new Map())
-    const [openKeys, setOpenKeys] = React.useState<CascaderOption["id"][]>([""]);
+    const initializedRef = React.useRef<boolean>(false);
+    const [dataSet, setDataSet] = React.useState<DataSet<TreeSelectOption>>(getTreeDataFormatted(options));
+    const { flattedData, idTreeNodeMap } = dataSet;
+
     React.useEffect(() => {
-        setAllChildrenMap(idAllChildrenMap(options))
-    }, [flattedOptions]);
+        if (!initializedRef.current) initializedRef.current = true;
+        else setDataSet(getTreeDataFormatted(options));
+    }, [options]);
+
+    const { selected, onOptionSelect, onValueChange, toggleCheck } = useValue({
+        value,
+        multiple,
+        onChange,
+        dataSet,
+        checkWithRelation,
+    })
+
+    const { openKeys, openChildren } = useOpen();
+
+    const { searchData, inputValue, onInputChange } = useSearch({
+        search,
+        multiple,
+        dataSet,
+    })
+
+    const { anchorEl, inputRef, eleRef, openDropDown, hovering, setHovering } = useAnchor({
+        onInputChange,
+    })
 
     const { tagLimit, tagWidths, setTagWidths } = useTagLimits({
         maxTagCount,
         selected,
         inputRef
     });
-    const onClear = () => setSelected([]);
-    const openDropDown = (e) => {
-        e.stopPropagation();
-        setInputValue('');
-        setAnchorEl(eleRef.current);
-    };
-    const closeOptions = (e) => {
-        setInputValue('');
-        setAnchorEl(null);
-        document.removeEventListener('click', closeOptions);
-    };
 
-    React.useEffect(() => {
-        if (initialized) onChange && onChange(multiple ? selected : selected[0]);
-        else setInitialized(true)
-    }, [selected]);
-    React.useEffect(() => {
-        if (anchorEl) setTimeout(() => {
-            document.addEventListener('click', closeOptions)
-        }, 300);
-    }, [anchorEl])
+    const { loadingId, startLoadData } = useLoadData({ loadData, openChildren });
+
+
+    const onClear = () => onValueChange([]);
+
     const renderInput = (params) => {
         const isFocus = !!anchorEl;
         return (
@@ -107,11 +116,11 @@ const Cascader = ({
         const rest = value.slice(tagLimit);
         const size = inputProps.size;
         return rendered.map((id, index) => {
-            const o = flattedOptions.find(o => o.id === id);
+            const o = idTreeNodeMap.get(id);
             return (<Tag
                 size={size}
                 onDelete={(id) => {
-                    setSelected(selected.filter(s => s !== id));
+                    onValueChange(selected.filter(s => s !== id));
                     setTagWidths(tagWidths.filter((w, i) => i !== index));
                 }}
                 option={o}
@@ -135,10 +144,6 @@ const Cascader = ({
         }
     };
 
-    const onInputChange = (e, value, reason) => {
-        if (reason === 'reset' && multiple) return;
-        setInputValue(value);
-    };
 
     const renderValue = () => {
         if (multiple) return selected
@@ -146,7 +151,7 @@ const Cascader = ({
         if (isFocused && search) {
             return inputValue;
         }
-        const o = flattedOptions.find(o => o.id === selected[0]);
+        const o = idTreeNodeMap.get(selected[0]);
         return o?.name || '';
     };
 
@@ -154,11 +159,6 @@ const Cascader = ({
         return openKeys.map((key, depth) => {
             const showCheck = checkable && multiple;
             const dense = inputProps.size === 'small';
-            const openChildren = id => {
-                const a = [...openKeys];
-                a[depth + 1] = id;
-                setOpenKeys(a);
-            }
             return (
                 <DropDown
                     key={key}
@@ -171,16 +171,18 @@ const Cascader = ({
                         dense={dense}
                         parentId={key}
                         showCheck={showCheck}
-                        search={search}
                         multiple={multiple}
                         selected={selected}
-                        inputValue={inputValue}
-                        flatOptions={flattedOptions}
-                        setSelected={setSelected}
-                        allChildrenMap={allChildrenMap}
-                        setFlattedOptions={setFlattedOptions}
                         loadData={loadData}
                         openChildren={openChildren}
+                        dataSet={dataSet}
+                        checkWithRelation={checkWithRelation}
+                        toggleCheck={toggleCheck}
+                        searchData={searchData}
+                        onSelect={onOptionSelect}
+                        startLoadData={startLoadData}
+                        depth={depth}
+                        loadingId={loadingId}
                     />
                 </DropDown>
             )

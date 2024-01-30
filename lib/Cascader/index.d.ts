@@ -6,14 +6,15 @@ export type CascaderProps = {
     options: CascaderOption[];
     multiple?: boolean;
     checkable?: boolean;
+    checkWithRelation?: boolean;
     popperStyle?: React.CSSProperties;
     popperClassName?: string;
     search?: boolean;
     value?: any;
     onChange?: (v: any) => void;
-    loadData?: (o: CascaderOption) => Promise<CascaderOption[]>;
+    loadData?: (o: CascaderOption) => any;
     allowClear?: boolean;
     maxTagCount?: number | 'responsive';
 };
-declare const Cascader: ({ search, options, multiple, checkable, popperStyle, popperClassName, value, onChange, loadData, allowClear, maxTagCount, ...inputProps }: TextFieldProps & CascaderProps) => import("react/jsx-runtime").JSX.Element;
+declare const Cascader: ({ search, options, multiple, checkable, checkWithRelation, popperStyle, popperClassName, value, onChange, loadData, allowClear, maxTagCount, ...inputProps }: TextFieldProps & CascaderProps) => import("react/jsx-runtime").JSX.Element;
 export default Cascader;
