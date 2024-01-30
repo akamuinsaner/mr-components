@@ -16,6 +16,7 @@ import getTreeDataFormatted, {
     RESERVED_KEY
 } from '../utils/getTreeDataFormatted';
 import useExpanded from './useExpanded';
+import useLoadData from './useLoadData';
 
 export type TreeSelectOption = {
     id: number | string;
@@ -70,8 +71,6 @@ const TreeSelect = ({
     const [dataSet, setDataSet] = React.useState<DataSet<TreeSelectOption>>(getTreeDataFormatted(options));
     const {
         flattedData,
-        idChildrenMap,
-        idChildrenIdMap,
         idTreeNodeMap,
     } = dataSet;
     React.useEffect(() => {
@@ -85,8 +84,7 @@ const TreeSelect = ({
         else setInitialized(true)
     }, [selected]);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
-    const [hovering, setHovering] = React.useState<boolean>(false);
-    const [loadingId, setLoadingId] = React.useState<string | number>(null);
+    const [hovering, setHovering] = React.useState<boolean>(false)
 
     const [inputValue, setInputValue] = React.useState<string>('');
 
@@ -98,13 +96,16 @@ const TreeSelect = ({
         onExpand,
     })
 
-    const {
-        tagLimit, tagWidths, setTagWidths
-    } = useTagLimits({
+    const { tagLimit, tagWidths, setTagWidths } = useTagLimits({
         maxTagCount,
         selected,
         inputRef
     });
+
+    const { loadingId, startLoadData } = useLoadData({
+        loadData,
+        toggleExpand,
+    })
 
 
     const onClear = () => setSelected([]);
@@ -119,15 +120,6 @@ const TreeSelect = ({
         document.removeEventListener('click', closeOptions);
     };
 
-    const startLoadData = (option) => {
-        if (!loadData) return;
-        setLoadingId(option.id)
-        loadData(option).then(data => {
-            toggleExpand(option.id);
-        }).finally(() => {
-            setLoadingId(null)
-        })
-    }
 
     React.useEffect(() => {
         if (anchorEl) setTimeout(() => {
