@@ -11,6 +11,7 @@ import { flatOptions, idAllChildrenMap } from '../TreeSelect/helper';
 import DropDown from './DropDown';
 import Options from './Options';
 import { TreeSelectOption } from '../TreeSelect';
+import useTagLimits from './useTagLimits';
 
 export type CascaderOption = TreeSelectOption;
 
@@ -44,12 +45,10 @@ const Cascader = ({
 }: TextFieldProps & CascaderProps) => {
     const inputRef = React.useRef(null);
     const eleRef = React.useRef<HTMLElement>(null);
-    const [tagWidths, setTagWidths] = React.useState([]);
     const [initialized, setInitialized] = React.useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
     const [hovering, setHovering] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<CascaderOption["id"][]>(Array.isArray(value) ? value : (value ? [value] : []));
-    const [tagLimit, setTagLimit] = React.useState<number>(10000);
     const [inputValue, setInputValue] = React.useState<string>('');
     const [flattedOptions, setFlattedOptions] = React.useState<CascaderOption[]>(flatOptions(options));
     const [allChildrenMap, setAllChildrenMap] = React.useState<Map<CascaderOption["id"], CascaderOption[]>>(new Map())
@@ -58,30 +57,11 @@ const Cascader = ({
         setAllChildrenMap(idAllChildrenMap(options))
     }, [flattedOptions]);
 
-    const calculateTagLimit = () => {
-        const inputWidth = inputRef.current.offsetWidth;
-        let width = 0;
-        for (let i = 0; i < tagWidths.length;) {
-            width += tagWidths[0];
-            if (inputWidth - width < 150) {
-                setTagLimit(i + 1);
-                break;
-            } else {
-                i++;
-            }
-        }
-    };
-    React.useEffect(() => {
-        if (typeof maxTagCount === 'number') setTagLimit(maxTagCount || 10000);
-        if (maxTagCount === 'responsive') {
-            setTagLimit(10000);
-            calculateTagLimit();
-            window.addEventListener('resize', calculateTagLimit);
-        }
-        return () => {
-            window.removeEventListener('resize', calculateTagLimit);
-        }
-    }, [maxTagCount, tagWidths, selected]);
+    const { tagLimit, tagWidths, setTagWidths } = useTagLimits({
+        maxTagCount,
+        selected,
+        inputRef
+    });
     const onClear = () => setSelected([]);
     const openDropDown = (e) => {
         e.stopPropagation();
