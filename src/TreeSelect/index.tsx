@@ -84,7 +84,8 @@ const TreeSelect = ({
         else setInitialized(true)
     }, [selected]);
 
-    const { inputValue, onInputChange } = useSearch({
+    const { searchData, inputValue, onInputChange } = useSearch({
+        search,
         multiple,
         dataSet,
     })
@@ -102,14 +103,7 @@ const TreeSelect = ({
         toggleExpand,
     })
 
-    const {
-        anchorEl,
-        inputRef,
-        eleRef,
-        openDropDown,
-        hovering,
-        setHovering
-    } = useAnchor({
+    const { anchorEl, inputRef, eleRef, openDropDown, hovering, setHovering } = useAnchor({
         onInputChange,
     })
 
@@ -183,6 +177,7 @@ const TreeSelect = ({
         }
     };
 
+    
 
     return (
         <>
@@ -215,10 +210,8 @@ const TreeSelect = ({
                 <Options
                     dense={inputProps.size === 'small'}
                     showCheck={multiple && checkable}
-                    search={search}
                     multiple={multiple}
                     selected={selected}
-                    inputValue={inputValue}
                     setSelected={setSelected}
                     loadData={loadData}
                     expandKeys={expandKeys}
@@ -227,6 +220,7 @@ const TreeSelect = ({
                     checkWithRelation={checkWithRelation}
                     loadingId={loadingId}
                     startLoadData={startLoadData}
+                    searchData={searchData}
                 />
             </DropDown>
         </>

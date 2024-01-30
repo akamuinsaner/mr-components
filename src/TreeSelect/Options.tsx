@@ -9,9 +9,7 @@ import { RESERVED_KEY, DataSet } from '../utils/getTreeDataFormatted';
 export type OptionsProps = {
     dense: boolean;
     showCheck: boolean;
-    inputValue: string;
     selected: Array<TreeSelectOption["id"]>;
-    search: TreeSelectProp["search"];
     multiple: TreeSelectProp["multiple"];
     setSelected: (s: Array<TreeSelectOption["id"]>) => void;
     loadData: TreeSelectProp["loadData"];
@@ -21,15 +19,14 @@ export type OptionsProps = {
     checkWithRelation: boolean;
     loadingId: TreeSelectOption["id"]
     startLoadData: (node: TreeSelectOption) => void;
+    searchData: TreeSelectOption[];
 }
 
 export default ({
     dense,
     showCheck,
-    search,
     multiple,
     selected,
-    inputValue,
     setSelected,
     loadData,
     expandKeys,
@@ -37,26 +34,14 @@ export default ({
     dataSet,
     checkWithRelation,
     loadingId,
-    startLoadData
+    startLoadData,
+    searchData
 }: OptionsProps) => {
 
     const {
-        flattedData,
-        idChildrenMap,
         idChildrenIdMap,
-        idTreeNodeMap,
         parentChainMap
     } = dataSet;
-    const filterOptionsByInput = (options: TreeSelectOption[]) => {
-        let filteredIds = [];
-        for (let [key, list] of idChildrenMap.entries()) {
-            const filteredByInput = !!list.find(l => `${l.name}`.includes(inputValue));
-            if (filteredByInput) filteredIds.push(key);
-        }
-        const filterCondition: (o: TreeSelectOption) => boolean
-            = o => filteredIds.includes(o.id) || `${o.name}`.indexOf(inputValue) > -1;
-        return options.filter(filterCondition);
-    }
 
     const onSelect = (o: TreeSelectOption) => {
         if (multiple) {
@@ -70,8 +55,6 @@ export default ({
         }
     };
 
-
-
     const renderChildren = (
         id: number | string,
         depth: number,
@@ -82,8 +65,7 @@ export default ({
     }
 
     const renderTreeNode = (parentId: TreeSelectOption["id"] = RESERVED_KEY, depth: number = 0) => {
-        let currentLevelNodes = flattedData.filter(o => o.parentId === parentId);
-        if (search && inputValue) currentLevelNodes = filterOptionsByInput(currentLevelNodes);
+        let currentLevelNodes = searchData.filter(o => o.parentId === parentId);
         return currentLevelNodes.map(node => {
             const nodeId = node.id;
             const itemSelected = selected.includes(nodeId);

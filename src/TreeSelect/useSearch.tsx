@@ -3,16 +3,19 @@ import { TreeSelectOption } from './index';
 import { DataSet } from '../utils/getTreeDataFormatted';
 
 type UseSearchProps = {
+    search: boolean;
     multiple: boolean;
     dataSet: DataSet<TreeSelectOption>;
 }
 
 export default ({
+    search,
     multiple,
     dataSet
 }: UseSearchProps) => {
-    const { idChildrenMap } = dataSet;
+    const { idChildrenMap, flattedData } = dataSet;
     const [inputValue, setInputValue] = React.useState<string>('');
+    const [searchData, setSearchData] = React.useState<TreeSelectOption[]>(flattedData);
 
     const filterOptionsByInput = (options: TreeSelectOption[]) => {
         let filteredIds = [];
@@ -30,9 +33,13 @@ export default ({
         setInputValue(value);
     };
 
+    React.useEffect(() => {
+        if (search) setSearchData(filterOptionsByInput(flattedData));
+    }, [inputValue, search]);
+
     return {
         inputValue,
         onInputChange,
-        filterOptionsByInput
+        searchData
     }
 }
