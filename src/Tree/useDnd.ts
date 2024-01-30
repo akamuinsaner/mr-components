@@ -36,6 +36,7 @@ export default ({
     }, [overId]);
 
     const onDragEnd = e => {
+        console.log(e)
         setActiveId(null);
         setOverId(null);
         let { over, active } = e;

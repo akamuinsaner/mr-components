@@ -17,6 +17,7 @@ import getTreeDataFormatted, {
 } from '../utils/getTreeDataFormatted';
 import useExpanded from './useExpanded';
 import useLoadData from './useLoadData';
+import useSearch from './useSearch';
 
 export type TreeSelectOption = {
     id: number | string;
@@ -86,7 +87,11 @@ const TreeSelect = ({
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
     const [hovering, setHovering] = React.useState<boolean>(false)
 
-    const [inputValue, setInputValue] = React.useState<string>('');
+
+    const { inputValue, onInputChange } = useSearch({
+        multiple,
+        dataSet,
+    })
 
     const { expandKeys, toggleExpand } = useExpanded({
         flattedData,
@@ -111,11 +116,11 @@ const TreeSelect = ({
     const onClear = () => setSelected([]);
     const openDropDown = (e) => {
         e.stopPropagation();
-        setInputValue('');
+        onInputChange(null, '', '');
         setAnchorEl(inputRef.current);
     };
     const closeOptions = (e) => {
-        setInputValue('');
+        onInputChange(null, '', '');
         setAnchorEl(null);
         document.removeEventListener('click', closeOptions);
     };
@@ -189,10 +194,7 @@ const TreeSelect = ({
         }
     };
 
-    const onInputChange = (e, value, reason) => {
-        if (reason === 'reset' && multiple) return;
-        setInputValue(value);
-    };
+
     return (
         <>
             <Autocomplete

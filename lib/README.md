@@ -2,6 +2,9 @@
 # mr-components
 Some complementary components based on material-ui and react
 
+## Documentation
+The documentation is placed [here](http://mr-component.site/).
+
 ## React
 React [https://react.dev/](https://react.dev/).
 
@@ -29,4 +32,5 @@ npm run build
 - Cascader
 - TreeSelect
 - RecordTable
+- Tree
 

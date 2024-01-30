@@ -99,8 +99,8 @@ const TreeNode = ({
                     [styles["mr-tree-node-switch-open"]]: expand,
                 })}
                 onClick={() => {
-                    toggleExpand(data, !expand);
-                    startLoadData(data)
+                    if (hasChildren) toggleExpand(data, !expand);
+                    else startLoadData(data);
                 }}
             >
                 {SwitchIcon}
