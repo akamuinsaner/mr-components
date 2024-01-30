@@ -1,5 +1,5 @@
 import React from 'react';
-import { TreeData } from './index';
+import { TreeData, TreeProps } from './index';
 export type TreeNodeProps = {
     blockNodes?: boolean;
     activeId: any;
@@ -19,6 +19,9 @@ export type TreeNodeProps = {
     idSiblingsAfterMap: Map<TreeData["id"], TreeData[]>;
     switchIcon?: React.ReactNode | ((node: TreeData, expand: boolean) => React.ReactNode);
     parentChain: TreeData["id"][];
+    loadData: TreeProps["loadData"];
+    loadingId: TreeData["id"];
+    startLoadData: (option: TreeData) => void;
 };
-declare const TreeNode: ({ blockNodes, activeId, checkable, indeterminate, checked, data, depth, draggable, expand, overId, toggleCheck, toggleExpand, selected, toggleSelect, showLine, idSiblingsAfterMap, switchIcon, parentChain }: TreeNodeProps) => import("react/jsx-runtime").JSX.Element;
+declare const TreeNode: ({ blockNodes, activeId, checkable, indeterminate, checked, data, depth, draggable, expand, overId, toggleCheck, toggleExpand, selected, toggleSelect, showLine, idSiblingsAfterMap, switchIcon, parentChain, loadData, loadingId, startLoadData }: TreeNodeProps) => import("react/jsx-runtime").JSX.Element;
 export default TreeNode;

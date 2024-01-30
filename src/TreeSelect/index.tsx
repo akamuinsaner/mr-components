@@ -40,7 +40,7 @@ export type TreeSelectProp = TextFieldProps & {
     value?: any;
     onChange?: (v: any) => void;
     onExpand?: (expandedKeys: Array<number | string>) => void;
-    loadData?: (o: TreeSelectOption) => Promise<TreeSelectOption[]>;
+    loadData?: (o: TreeSelectOption) => any;
     allowClear?: boolean;
     maxTagCount?: number | 'responsive';
 }

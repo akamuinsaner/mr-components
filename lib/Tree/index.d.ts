@@ -20,6 +20,7 @@ export type TreeProps = {
     defaultSelectAll?: boolean;
     draggable?: boolean;
     expandedKeys?: Array<number | string>;
+    loadData?: (node: TreeData) => any;
     onCheck?: (checkedKeys: Array<number | string>, checked: boolean, node: TreeData) => void;
     onDrop?: (active: TreeData, over: TreeData) => void;
     onExpand?: (expandedKeys: Array<number | string>, expanded: boolean, node: TreeData) => void;
@@ -30,5 +31,5 @@ export type TreeProps = {
     sx?: SxProps;
     treeData: TreeData[];
 };
-declare const Tree: ({ blockNodes, checkable, checkedKeys, checkWithRelation, className, defaultCheckedKeys, defaultCheckedAll, defaultExpandedKeys, defaultExpandAll, defaultSelectedKeys, defaultSelectAll, draggable, expandedKeys, onCheck, onExpand, onDrop, onSelect, selectedKeys, showLine, switchIcon, sx, treeData }: TreeProps) => import("react/jsx-runtime").JSX.Element;
+declare const Tree: ({ blockNodes, checkable, checkedKeys, checkWithRelation, className, defaultCheckedKeys, defaultCheckedAll, defaultExpandedKeys, defaultExpandAll, defaultSelectedKeys, defaultSelectAll, draggable, expandedKeys, loadData, onCheck, onExpand, onDrop, onSelect, selectedKeys, showLine, switchIcon, sx, treeData }: TreeProps) => import("react/jsx-runtime").JSX.Element;
 export default Tree;

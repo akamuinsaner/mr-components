@@ -17,6 +17,7 @@ import useChecked from './useChecked';
 import useExpanded from './useExpanded';
 import useSelected from './useSelected';
 import useDnd from './useDnd';
+import useLoadData from './useLoadData';
 
 export type TreeData = {
     id: number | string;
@@ -39,6 +40,7 @@ export type TreeProps = {
     defaultSelectAll?: boolean;
     draggable?: boolean;
     expandedKeys?: Array<number | string>;
+    loadData?: (node: TreeData) => any;
     onCheck?: (checkedKeys: Array<number | string>, checked: boolean, node: TreeData) => void;
     onDrop?: (active: TreeData, over: TreeData) => void;
     onExpand?: (expandedKeys: Array<number | string>, expanded: boolean, node: TreeData) => void;
@@ -64,6 +66,7 @@ const Tree = ({
     defaultSelectAll,
     draggable,
     expandedKeys,
+    loadData,
     onCheck,
     onExpand,
     onDrop,
@@ -100,6 +103,14 @@ const Tree = ({
         expandedKeys,
         onExpand,
     });
+
+    const {
+        loadingId,
+        startLoadData
+    } = useLoadData({
+        loadData,
+        toggleExpand,
+    })
 
     const { selectKeys, toggleSelect } = useSelected({
         dataSet,
@@ -158,6 +169,9 @@ const Tree = ({
                     draggable={draggable}
                     activeId={activeId}
                     overId={overId}
+                    loadData={loadData}
+                    loadingId={loadingId}
+                    startLoadData={startLoadData}
                 />,
                 ...renderChildren(
                     nodeId,

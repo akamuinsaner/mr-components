@@ -11,7 +11,8 @@ import classNames from 'classnames';
 import styles from './index.module.css';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { TreeData } from './index';
+import { TreeData, TreeProps } from './index';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export type TreeNodeProps = {
     blockNodes?: boolean;
@@ -32,6 +33,9 @@ export type TreeNodeProps = {
     idSiblingsAfterMap: Map<TreeData["id"], TreeData[]>;
     switchIcon?: React.ReactNode | ((node: TreeData, expand: boolean) => React.ReactNode);
     parentChain: TreeData["id"][];
+    loadData: TreeProps["loadData"];
+    loadingId: TreeData["id"];
+    startLoadData: (option: TreeData) => void
 }
 
 const TreeNode = ({
@@ -52,7 +56,10 @@ const TreeNode = ({
     showLine,
     idSiblingsAfterMap,
     switchIcon,
-    parentChain
+    parentChain,
+    loadData,
+    loadingId,
+    startLoadData
 }: TreeNodeProps) => {
     const {
         id, name, children
@@ -76,6 +83,12 @@ const TreeNode = ({
     }
 
     const renderArrow = () => {
+        if (loadingId === id) {
+            return <CircularProgress
+                size={20}
+                sx={{ marginRight: '4px' }}
+            />
+        }
         let SwitchIcon: React.ReactNode = <ArrowRight />;
         if (typeof switchIcon !== 'function' && switchIcon) SwitchIcon = switchIcon;
         if (typeof switchIcon === 'function' && switchIcon) SwitchIcon = switchIcon(data, expand);
@@ -85,7 +98,10 @@ const TreeNode = ({
                     [styles["mr-tree-node-switch"]]: true,
                     [styles["mr-tree-node-switch-open"]]: expand,
                 })}
-                onClick={() => toggleExpand(data, !expand)}
+                onClick={() => {
+                    toggleExpand(data, !expand);
+                    startLoadData(data)
+                }}
             >
                 {SwitchIcon}
             </ListItemIcon>
@@ -111,7 +127,7 @@ const TreeNode = ({
             disablePadding
             className={classNames(styles["mr-tree-node"], {
                 [styles["mr-tree-node-block"]]: blockNodes,
-                [styles["mr-tree-leaf"]]: !hasChildren,
+                [styles["mr-tree-leaf"]]: !hasChildren && !loadData,
                 [styles["mr-tree-node-selected"]]: selected
             })}
         >
@@ -166,14 +182,14 @@ const TreeNode = ({
                     ...listeners,
                     ...attributes
                 })}
-                {isActive ? 
+                {isActive ?
                     React.cloneElement(renderChildren, {
                         className: classNames(
                             renderChildren.props.className,
                             [styles["mr-tree-drag-overlay"]]
                         )
                     })
-                 : null}
+                    : null}
             </Box>
         )
     }
