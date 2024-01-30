@@ -18,6 +18,7 @@ import getTreeDataFormatted, {
 import useExpanded from './useExpanded';
 import useLoadData from './useLoadData';
 import useSearch from './useSearch';
+import useAnchor from './useAnchor';
 
 export type TreeSelectOption = {
     id: number | string;
@@ -66,8 +67,6 @@ const TreeSelect = ({
     maxTagCount = 0,
     ...inputProps
 }: TreeSelectProp) => {
-    const inputRef = React.useRef(null);
-    const eleRef = React.useRef<HTMLElement>(null);
     const initializedRef = React.useRef<boolean>(false);
     const [dataSet, setDataSet] = React.useState<DataSet<TreeSelectOption>>(getTreeDataFormatted(options));
     const {
@@ -84,9 +83,6 @@ const TreeSelect = ({
         if (initialized) onChange && onChange(multiple ? selected : selected[0]);
         else setInitialized(true)
     }, [selected]);
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
-    const [hovering, setHovering] = React.useState<boolean>(false)
-
 
     const { inputValue, onInputChange } = useSearch({
         multiple,
@@ -101,36 +97,29 @@ const TreeSelect = ({
         onExpand,
     })
 
+    const { loadingId, startLoadData } = useLoadData({
+        loadData,
+        toggleExpand,
+    })
+
+    const {
+        anchorEl,
+        inputRef,
+        eleRef,
+        openDropDown,
+        hovering,
+        setHovering
+    } = useAnchor({
+        onInputChange,
+    })
+
     const { tagLimit, tagWidths, setTagWidths } = useTagLimits({
         maxTagCount,
         selected,
         inputRef
     });
 
-    const { loadingId, startLoadData } = useLoadData({
-        loadData,
-        toggleExpand,
-    })
-
-
     const onClear = () => setSelected([]);
-    const openDropDown = (e) => {
-        e.stopPropagation();
-        onInputChange(null, '', '');
-        setAnchorEl(inputRef.current);
-    };
-    const closeOptions = (e) => {
-        onInputChange(null, '', '');
-        setAnchorEl(null);
-        document.removeEventListener('click', closeOptions);
-    };
-
-
-    React.useEffect(() => {
-        if (anchorEl) setTimeout(() => {
-            document.addEventListener('click', closeOptions)
-        }, 300);
-    }, [anchorEl])
 
     const renderTags = (value: readonly any[], getTagProps) => {
         const rendered = value.slice(0, tagLimit);
