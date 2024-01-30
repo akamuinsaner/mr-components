@@ -37,6 +37,10 @@ export default ({
         if (search) setSearchData(filterOptionsByInput(flattedData));
     }, [inputValue, search]);
 
+    React.useEffect(() => {
+        setSearchData(flattedData);
+    }, [dataSet]);
+
     return {
         inputValue,
         onInputChange,

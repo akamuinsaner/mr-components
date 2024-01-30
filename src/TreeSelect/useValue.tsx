@@ -32,7 +32,7 @@ export default ({
     }
 
     React.useEffect(() => {
-        if (value) getValue(value);
+        if (value) setSelected(getValue(value));
     }, [value]);
 
     const toggleCheck = (node: TreeSelectOption, checked: boolean) => {
