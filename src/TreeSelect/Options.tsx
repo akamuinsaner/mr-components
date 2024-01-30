@@ -11,7 +11,6 @@ export type OptionsProps = {
     showCheck: boolean;
     selected: Array<TreeSelectOption["id"]>;
     multiple: TreeSelectProp["multiple"];
-    setSelected: (s: Array<TreeSelectOption["id"]>) => void;
     loadData: TreeSelectProp["loadData"];
     expandKeys: Array<TreeSelectOption["id"]>;
     toggleExpand: (id: TreeSelectOption["id"]) => void;
@@ -20,6 +19,8 @@ export type OptionsProps = {
     loadingId: TreeSelectOption["id"]
     startLoadData: (node: TreeSelectOption) => void;
     searchData: TreeSelectOption[];
+    onSelect: (o: TreeSelectOption) => void;
+    toggleCheck: (node: TreeSelectOption, checked: boolean) => void;
 }
 
 export default ({
@@ -27,7 +28,6 @@ export default ({
     showCheck,
     multiple,
     selected,
-    setSelected,
     loadData,
     expandKeys,
     toggleExpand,
@@ -35,25 +35,15 @@ export default ({
     checkWithRelation,
     loadingId,
     startLoadData,
-    searchData
+    searchData,
+    onSelect,
+    toggleCheck
 }: OptionsProps) => {
 
     const {
         idChildrenIdMap,
         parentChainMap
     } = dataSet;
-
-    const onSelect = (o: TreeSelectOption) => {
-        if (multiple) {
-            if (selected.includes(o.id)) {
-                setSelected(selected.filter(s => s !== o.id));
-            } else {
-                setSelected([...selected, o.id]);
-            }
-        } else {
-            setSelected([o.id]);
-        }
-    };
 
     const renderChildren = (
         id: number | string,
@@ -100,7 +90,7 @@ export default ({
                         option={node}
                         show={showCheck}
                         selected={selected}
-                        setSelected={setSelected}
+                        toggleCheck={toggleCheck}
                         parentChainMap={parentChainMap}
                         idChildrenIdMap={idChildrenIdMap}
                         checkWithRelation={checkWithRelation}

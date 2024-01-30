@@ -19,6 +19,7 @@ import useExpanded from './useExpanded';
 import useLoadData from './useLoadData';
 import useSearch from './useSearch';
 import useAnchor from './useAnchor';
+import useValue from './useValue';
 
 export type TreeSelectOption = {
     id: number | string;
@@ -69,20 +70,20 @@ const TreeSelect = ({
 }: TreeSelectProp) => {
     const initializedRef = React.useRef<boolean>(false);
     const [dataSet, setDataSet] = React.useState<DataSet<TreeSelectOption>>(getTreeDataFormatted(options));
-    const {
-        flattedData,
-        idTreeNodeMap,
-    } = dataSet;
+    const { flattedData, idTreeNodeMap } = dataSet;
+
     React.useEffect(() => {
         if (!initializedRef.current) initializedRef.current = true;
         else setDataSet(getTreeDataFormatted(options));
     }, [options]);
-    const [selected, setSelected] = React.useState<Array<string | number>>(Array.isArray(value) ? value : (value ? [value] : []));
-    const [initialized, setInitialized] = React.useState<boolean>(false);
-    React.useEffect(() => {
-        if (initialized) onChange && onChange(multiple ? selected : selected[0]);
-        else setInitialized(true)
-    }, [selected]);
+
+    const { selected, onOptionSelect, onValueChange, toggleCheck } = useValue({
+        value,
+        multiple,
+        onChange,
+        dataSet,
+        checkWithRelation,
+    })
 
     const { searchData, inputValue, onInputChange } = useSearch({
         search,
@@ -113,7 +114,7 @@ const TreeSelect = ({
         inputRef
     });
 
-    const onClear = () => setSelected([]);
+    const onClear = () => onValueChange([]);
 
     const renderTags = (value: readonly any[], getTagProps) => {
         const rendered = value.slice(0, tagLimit);
@@ -124,7 +125,7 @@ const TreeSelect = ({
             return (<Tag
                 size={size}
                 onDelete={(id) => {
-                    setSelected(selected.filter(s => s !== id));
+                    onValueChange(selected.filter(s => s !== id));
                     setTagWidths(tagWidths.filter((w, i) => i !== index));
                 }}
                 option={o}
@@ -177,7 +178,6 @@ const TreeSelect = ({
         }
     };
 
-    
 
     return (
         <>
@@ -212,7 +212,6 @@ const TreeSelect = ({
                     showCheck={multiple && checkable}
                     multiple={multiple}
                     selected={selected}
-                    setSelected={setSelected}
                     loadData={loadData}
                     expandKeys={expandKeys}
                     toggleExpand={toggleExpand}
@@ -221,6 +220,8 @@ const TreeSelect = ({
                     loadingId={loadingId}
                     startLoadData={startLoadData}
                     searchData={searchData}
+                    onSelect={onOptionSelect}
+                    toggleCheck={toggleCheck}
                 />
             </DropDown>
         </>

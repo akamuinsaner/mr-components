@@ -5,7 +5,6 @@ export type OptionsProps = {
     showCheck: boolean;
     selected: Array<TreeSelectOption["id"]>;
     multiple: TreeSelectProp["multiple"];
-    setSelected: (s: Array<TreeSelectOption["id"]>) => void;
     loadData: TreeSelectProp["loadData"];
     expandKeys: Array<TreeSelectOption["id"]>;
     toggleExpand: (id: TreeSelectOption["id"]) => void;
@@ -14,6 +13,8 @@ export type OptionsProps = {
     loadingId: TreeSelectOption["id"];
     startLoadData: (node: TreeSelectOption) => void;
     searchData: TreeSelectOption[];
+    onSelect: (o: TreeSelectOption) => void;
+    toggleCheck: (node: TreeSelectOption, checked: boolean) => void;
 };
-declare const _default: ({ dense, showCheck, multiple, selected, setSelected, loadData, expandKeys, toggleExpand, dataSet, checkWithRelation, loadingId, startLoadData, searchData }: OptionsProps) => import("react/jsx-runtime").JSX.Element;
+declare const _default: ({ dense, showCheck, multiple, selected, loadData, expandKeys, toggleExpand, dataSet, checkWithRelation, loadingId, startLoadData, searchData, onSelect, toggleCheck }: OptionsProps) => import("react/jsx-runtime").JSX.Element;
 export default _default;

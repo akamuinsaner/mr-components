@@ -4,10 +4,10 @@ export type CheckProps = {
     show: boolean;
     selected: Array<TreeSelectOption["id"]>;
     option: TreeSelectOption;
-    setSelected: (s: Array<TreeSelectOption["id"]>) => void;
+    toggleCheck: (node: TreeSelectOption, checked: boolean) => void;
     parentChainMap: DataSet<TreeSelectOption>["parentChainMap"];
     idChildrenIdMap: DataSet<TreeSelectOption>["idChildrenIdMap"];
     checkWithRelation: boolean;
 };
-declare const _default: ({ show, option, selected, setSelected, parentChainMap, idChildrenIdMap, checkWithRelation }: CheckProps) => import("react/jsx-runtime").JSX.Element;
+declare const _default: ({ show, option, selected, toggleCheck, idChildrenIdMap, checkWithRelation }: CheckProps) => import("react/jsx-runtime").JSX.Element;
 export default _default;
