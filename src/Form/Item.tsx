@@ -47,7 +47,6 @@ const FormItem: FormItemComponent<FormItemProps> = ({
     rules = [],
     gridProps
 }) => {
-    const itemRef = React.useRef<HTMLElement>(null);
     const context = React.useContext<any>(FormContext);
     const {
         instance,
@@ -94,7 +93,6 @@ const FormItem: FormItemComponent<FormItemProps> = ({
     _this.current = {
 
         ..._this.current,
-        element: itemRef.current,
         setError: _setError,
         setValue: _setValue,
         getValue: _getValue,
@@ -145,7 +143,6 @@ const FormItem: FormItemComponent<FormItemProps> = ({
     }
 
     const preChildren = React.cloneElement(subComponent, {
-        ref: itemRef,
         size,
         disabled,
         fullWidth,

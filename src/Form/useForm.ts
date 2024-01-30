@@ -71,7 +71,9 @@ class FormInstance implements FormInstanceType {
         Object.entries(values).forEach(([name, value]) => {
             this.wired[name].current.setValue(value);
         })
-        this.onValuesChange(oldStore, this.store);
+        if (this.onValuesChange) {
+            this.onValuesChange(oldStore, this.store);
+        }
     }
 
     resetFields = () => {

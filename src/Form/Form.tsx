@@ -52,8 +52,8 @@ const Form: FormComponent<FormProps> = ({
     const instance = useForm(form);
 
     React.useEffect(() => {
-        instance.onValuesChange = onValuesChange;
         instance.setFieldsValue(initialValues);
+        instance.onValuesChange = onValuesChange;
     }, [])
 
     const submitForm = (e) => {
