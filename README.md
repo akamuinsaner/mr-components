@@ -33,4 +33,5 @@ npm run build
 - TreeSelect
 - RecordTable
 - Tree
+- Message
 

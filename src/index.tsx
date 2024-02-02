@@ -4,6 +4,7 @@ import Form from './Form';
 import InputNumber from './InputNumber';
 import RecordTable from './RecordTable';
 import Tree from './Tree';
+import message from './Message';
 
 export {
     Form,
@@ -12,4 +13,5 @@ export {
     Cascader,
     RecordTable,
     Tree,
+    message,
 }
