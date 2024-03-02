@@ -141,6 +141,13 @@
     justify-content: center;
     z-index: 50;
 }
+.mr-table-loading-mask circle {
+    stroke: currentcolor;
+    stroke-dasharray: 80px, 200px;
+    stroke-dashoffset: 0;
+    animation: 1.4s ease-in-out 0s infinite normal none running animation-1p2h4ri;
+}
+
 
 .hide {
     display: none;
